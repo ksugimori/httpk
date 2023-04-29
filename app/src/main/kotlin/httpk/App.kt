@@ -3,13 +3,36 @@
  */
 package httpk
 
+import java.net.ServerSocket
+
+// TODO パラメーターにする
+private const val DEFAULT_SERVER_PORT = 8080
+
+fun log(message: String) = println("[LOG]  $message")
+
 class App {
-    val greeting: String
-        get() {
-            return "Hello World!"
+    fun execute() {
+        val port = DEFAULT_SERVER_PORT
+        ServerSocket(port).use { server ->
+            log("server start. waiting on port $port")
+
+            server.accept().use { socket ->
+                log("connected from ${socket.inetAddress}")
+
+                val reader = socket.getInputStream().bufferedReader()
+                do {
+                    val line = reader.readLine()
+                    println(line)
+
+                    if (line.isBlank()) break
+                } while (true)
+            }
         }
+
+        log("server terminated.")
+    }
 }
 
 fun main() {
-    println(App().greeting)
+    App().execute()
 }
