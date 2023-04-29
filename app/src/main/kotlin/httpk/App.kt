@@ -3,7 +3,9 @@
  */
 package httpk
 
+import java.io.PrintWriter
 import java.net.ServerSocket
+import java.net.Socket
 
 // TODO パラメーターにする
 private const val DEFAULT_SERVER_PORT = 8080
@@ -19,17 +21,26 @@ class App {
             server.accept().use { socket ->
                 log("connected from ${socket.inetAddress}")
 
-                val reader = socket.getInputStream().bufferedReader()
-                do {
-                    val line = reader.readLine()
-                    println(line)
-
-                    if (line.isBlank()) break
-                } while (true)
+                handle(socket)
             }
         }
 
         log("server terminated.")
+    }
+
+    private fun handle(socket: Socket) {
+        val reader = socket.getInputStream().bufferedReader()
+        val writer = PrintWriter(socket.getOutputStream().bufferedWriter())
+
+        do {
+            val line = reader.readLine()
+            log("""got "$line"""")
+            writer.println(line)
+            writer.flush()
+
+            if (line.isBlank()) break
+        } while (true)
+
     }
 }
 
