@@ -8,13 +8,14 @@ import kotlinx.coroutines.*
 import java.net.ServerSocket
 import java.net.Socket
 
-// TODO パラメーターにする
-private const val DEFAULT_SERVER_PORT = 8080
-
 fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $message")
 
-class App {
-    private val port = DEFAULT_SERVER_PORT
+class App(val port: Int, val isDebug: Boolean) {
+    init {
+        if (isDebug) {
+            System.setProperty("kotlinx.coroutines.debug", "on")
+        }
+    }
     fun start() = runBlocking {
         val serverSocket = initServerSocketSuspend()
         log("server start. waiting on port $port")
@@ -42,6 +43,5 @@ class App {
 }
 
 fun main() {
-    System.setProperty("kotlinx.coroutines.debug", "on")
-    App().start()
+    App(port = 8080, isDebug = true).start()
 }
