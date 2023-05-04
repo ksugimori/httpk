@@ -16,15 +16,15 @@ fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $mess
 
 class App {
     private val port = DEFAULT_SERVER_PORT
-    private val echoHandler: EchoHandler = EchoHandler()
     fun execute() = runBlocking(Dispatchers.IO) {
         val serverSocket = ServerSocket(port)
-        serverSocket.use { server ->
-            log("server start. waiting on port ${server.localPort}")
+        log("server start. waiting on port $port")
 
+        serverSocket.use { server ->
             while (true) {
                 val client = server.accept()
-                launch { client.use(echoHandler::handle) }
+                val echoHandler = EchoHandler()
+                launch { echoHandler.handle(client) }
             }
         }
     }
