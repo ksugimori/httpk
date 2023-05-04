@@ -4,7 +4,10 @@
 package httpk
 
 import httpk.handler.EchoHandler
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -16,6 +19,7 @@ class App(val port: Int, val isDebug: Boolean) {
             System.setProperty("kotlinx.coroutines.debug", "on")
         }
     }
+
     fun start() = runBlocking {
         val serverSocket = initServerSocketSuspend()
         log("server start. waiting on port $port")
@@ -43,5 +47,7 @@ class App(val port: Int, val isDebug: Boolean) {
 }
 
 fun main() {
+    Runtime.getRuntime().addShutdownHook(Thread { log("server terminated.") })
+
     App(port = 8080, isDebug = true).start()
 }
