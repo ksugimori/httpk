@@ -3,47 +3,36 @@
  */
 package httpk
 
-import java.io.PrintWriter
+import httpk.handler.EchoHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.net.ServerSocket
-import java.net.Socket
 
 // TODO パラメーターにする
 private const val DEFAULT_SERVER_PORT = 8080
 
-fun log(message: String) = println("[LOG]  $message")
+fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $message")
 
 class App {
-    fun execute() {
-        val port = DEFAULT_SERVER_PORT
-        ServerSocket(port).use { server ->
-            log("server start. waiting on port $port")
+    private val port = DEFAULT_SERVER_PORT
+    private val echoHandler: EchoHandler = EchoHandler()
+    fun execute() = runBlocking(Dispatchers.IO) {
+        val serverSocket = ServerSocket(port)
+        serverSocket.use { server ->
+            log("server start. waiting on port ${server.localPort}")
 
-            server.accept().use { socket ->
-                log("connected from ${socket.inetAddress}")
-
-                handle(socket)
+            while (true) {
+                val client = server.accept()
+                launch { client.use(echoHandler::handle) }
             }
         }
-
-        log("server terminated.")
     }
 
-    private fun handle(socket: Socket) {
-        val reader = socket.getInputStream().bufferedReader()
-        val writer = PrintWriter(socket.getOutputStream().bufferedWriter())
-
-        do {
-            val line = reader.readLine()
-            log("""got "$line"""")
-            writer.println(line)
-            writer.flush()
-
-            if (line.isBlank()) break
-        } while (true)
-
-    }
 }
 
 fun main() {
+    System.setProperty("kotlinx.coroutines.debug", "on")
+
     App().execute()
 }
