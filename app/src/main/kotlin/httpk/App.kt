@@ -4,10 +4,9 @@
 package httpk
 
 import httpk.handler.EchoHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.net.ServerSocket
+import java.net.Socket
 
 // TODO パラメーターにする
 private const val DEFAULT_SERVER_PORT = 8080
@@ -16,23 +15,33 @@ fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $mess
 
 class App {
     private val port = DEFAULT_SERVER_PORT
-    fun execute() = runBlocking(Dispatchers.IO) {
-        val serverSocket = ServerSocket(port)
+    fun start() = runBlocking {
+        val serverSocket = initServerSocketSuspend()
         log("server start. waiting on port $port")
 
-        serverSocket.use { server ->
+        serverSocket.use {
             while (true) {
-                val client = server.accept()
-                val echoHandler = EchoHandler()
-                launch { echoHandler.handle(client) }
+                val socket = acceptSuspend(it)
+                launch { EchoHandler().handle(socket) }
             }
         }
+    }
+
+    //
+    // private
+    //
+
+    private suspend fun acceptSuspend(it: ServerSocket): Socket {
+        return withContext(Dispatchers.IO) { it.accept() }
+    }
+
+    private suspend fun initServerSocketSuspend(): ServerSocket {
+        return withContext(Dispatchers.IO) { ServerSocket(port) }
     }
 
 }
 
 fun main() {
     System.setProperty("kotlinx.coroutines.debug", "on")
-
-    App().execute()
+    App().start()
 }
