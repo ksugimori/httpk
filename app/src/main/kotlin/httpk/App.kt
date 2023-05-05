@@ -4,6 +4,7 @@
 package httpk
 
 import httpk.handler.EchoHandler
+import httpk.handler.HttpHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -27,7 +28,8 @@ class App(val port: Int, val isDebug: Boolean) {
         serverSocket.use {
             while (true) {
                 val socket = acceptSuspend(it)
-                launch { EchoHandler().handle(socket) }
+//                launch { EchoHandler().handle(socket) }
+                launch { HttpHandler().handle(socket) }
             }
         }
     }
