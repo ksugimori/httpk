@@ -5,51 +5,36 @@ package httpk
 
 import httpk.handler.EchoHandler
 import httpk.handler.HttpHandler
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.net.ServerSocket
-import java.net.Socket
 
 fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $message")
 
-class App(val port: Int, val isDebug: Boolean) {
-    init {
-        if (isDebug) {
-            System.setProperty("kotlinx.coroutines.debug", "on")
-        }
-    }
+class App() {
 
-    fun start() = runBlocking {
-        val serverSocket = initServerSocketSuspend()
+    fun listen(port: Int) {
+        val serverSocket = ServerSocket(port)
         log("server start. waiting on port $port")
 
-        serverSocket.use {
-            while (true) {
-                val socket = acceptSuspend(it)
-//                launch { EchoHandler().handle(socket) }
-                launch { HttpHandler().handle(socket) }
-            }
+        serverSocket.use { dispatchRequests(it) }
+    }
+
+    private fun dispatchRequests(serverSocket: ServerSocket) = runBlocking {
+        val scope = this
+        while (true) {
+            val socket = withContext(Dispatchers.IO) { serverSocket.accept() }
+            launch { EchoHandler().handle(socket) }
+//            launch { HttpHandler().handle(socket) }
         }
-    }
 
-    //
-    // private
-    //
 
-    private suspend fun acceptSuspend(it: ServerSocket): Socket {
-        return withContext(Dispatchers.IO) { it.accept() }
-    }
-
-    private suspend fun initServerSocketSuspend(): ServerSocket {
-        return withContext(Dispatchers.IO) { ServerSocket(port) }
     }
 
 }
 
 fun main() {
     Runtime.getRuntime().addShutdownHook(Thread { log("server terminated.") })
+    System.setProperty("kotlinx.coroutines.debug", "on")
 
-    App(port = 8080, isDebug = true).start()
+    App().listen(8080)
 }
