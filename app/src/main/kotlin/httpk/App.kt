@@ -20,11 +20,10 @@ class App() {
     }
 
     private fun dispatchRequests(serverSocket: ServerSocket) = runBlocking {
-        val scope = this
         while (true) {
             val socket = withContext(Dispatchers.IO) { serverSocket.accept() }
-            launch { EchoHandler().handle(socket) }
-//            launch { HttpHandler().handle(socket) }
+//            launch { EchoHandler().handle(socket) }
+            launch { HttpHandler().handle(socket) }
         }
 
 
