@@ -10,50 +10,49 @@ import java.io.BufferedWriter
 import java.io.PrintWriter
 import java.net.Socket
 
-// 読み込み状態。TODO 状態数、遷移を整理する
-enum class Status {
-    INIT, HEADER, BODY, END
-}
-
 class HttpHandler() : Handler {
+
+    private sealed class State(val value: String) {
+        abstract fun process(line: String): State
+        override fun toString(): String = value
+
+        object Init : State("INIT") {
+            override fun process(line: String): State {
+                val requestLine = parseRequestLine(line)
+                log("Request: $requestLine")
+
+                return State.Header
+            }
+        }
+
+        object Header : State("HEADER") {
+            override fun process(line: String): State {
+                if (line.isBlank()) return State.End
+                return State.Header
+            }
+        }
+
+        object End : State("END") {
+            override fun process(line: String): State = State.End
+        }
+    }
+
     override suspend fun handle(socket: Socket) {
-        var status = Status.INIT
+        var state: State = State.Init
 
         socket.use {
             val reader = getBufferedReaderSuspend(it)
             val writer = PrintWriter(getBufferedWriterSuspend(it))
 
-            var hasBody = false
-            var requestLine: RequestLine? = null
-            val headers = mutableListOf<String>()
-            while (status != Status.END) {
+            while (state != State.End) {
                 val line = readLineSuspend(reader)
-
-                // TODO state パターンにできる？
-                when (status) {
-                    Status.INIT -> {
-                        requestLine = parseRequestLine(line)
-                        status = Status.HEADER
-                    }
-
-                    Status.HEADER -> {
-                        headers.add(line)
-                        if (line.isBlank()) status = Status.END
-                    }
-
-                    else -> {
-                        status = Status.END
-                    }
-
-                }
-
+                // TODO リクエストボディのビルダーを引数に（もしくはビルダー内に state を持たせる）
+                state = state.process(line)
             }
-
-            log("Request: $requestLine")
 
             // TODO ドキュメント取得
             // TODO Response クラス作成
-            writer.println("${requestLine?.version} 200 OK")
+            writer.println("HTTP/1.1 200 OK")
             writer.flush()
         }
 
