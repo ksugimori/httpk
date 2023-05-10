@@ -28,23 +28,18 @@ private class RequestBuilder() {
     }
 }
 
-private sealed class State(val value: String) {
-    // TODO State の中に builder を持つと static にせざるを得ないので気持ち悪い
-    companion object {
-        val builder: RequestBuilder = RequestBuilder()
-    }
-    abstract fun process(line: String): State
-    override fun toString(): String = value
+private sealed interface State {
+    fun process(line: String, builder: RequestBuilder): State
 
-    object Init : State("INIT") {
-        override fun process(line: String): State {
+    object Init : State {
+        override fun process(line: String, builder: RequestBuilder): State {
             builder.requestLine = parseRequestLine(line)
             return State.Header
         }
     }
 
-    object Header : State("HEADER") {
-        override fun process(line: String): State {
+    object Header : State {
+        override fun process(line: String, builder: RequestBuilder): State {
             return if (line.isBlank()) {
                 State.End
             } else {
@@ -54,8 +49,8 @@ private sealed class State(val value: String) {
         }
     }
 
-    object End : State("END") {
-        override fun process(line: String) = State.End
+    object End : State {
+        override fun process(line: String, builder: RequestBuilder) = State.End
     }
 }
 
@@ -68,13 +63,14 @@ class HttpHandler() : Handler {
             val reader = getBufferedReaderSuspend(it)
             val writer = PrintWriter(getBufferedWriterSuspend(it))
 
+            val builder = RequestBuilder()
+
             while (state != State.End) {
                 val line = readLineSuspend(reader)
-                // TODO リクエストボディのビルダーを引数に（もしくはビルダー内に state を持たせる）
-                state = state.process(line)
+                state = state.process(line, builder)
             }
 
-            val request = State.builder.build()
+            val request = builder.build()
             log("Request: $request")
 
             // TODO ドキュメント取得
