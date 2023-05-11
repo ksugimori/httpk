@@ -1,6 +1,7 @@
 package httpk.handler
 
 import httpk.core.HttpRequest
+import httpk.core.HttpRequestParser
 import httpk.core.RequestLine
 import httpk.core.parseRequestLine
 import httpk.log
@@ -11,66 +12,22 @@ import java.io.BufferedWriter
 import java.io.PrintWriter
 import java.net.Socket
 
-private class RequestBuilder() {
-    var requestLine: RequestLine? = null
-    var headers: MutableList<String> = mutableListOf()
-
-    fun build(): HttpRequest {
-        if (requestLine == null) throw IllegalStateException("requestLine not initialized")
-
-        return HttpRequest(
-            method = requestLine!!.method,
-            path = requestLine!!.path,
-            version = requestLine!!.version,
-            headers = headers,
-            body = null
-        )
-    }
-}
-
-private sealed interface State {
-    fun process(line: String, builder: RequestBuilder): State
-
-    object Init : State {
-        override fun process(line: String, builder: RequestBuilder): State {
-            builder.requestLine = parseRequestLine(line)
-            return State.Header
-        }
-    }
-
-    object Header : State {
-        override fun process(line: String, builder: RequestBuilder): State {
-            return if (line.isBlank()) {
-                State.End
-            } else {
-                builder.headers.add(line)
-                State.Header
-            }
-        }
-    }
-
-    object End : State {
-        override fun process(line: String, builder: RequestBuilder) = State.End
-    }
-}
 
 class HttpHandler() : Handler {
 
     override suspend fun handle(socket: Socket) {
-        var state: State = State.Init
-
         socket.use {
             val reader = getBufferedReaderSuspend(it)
             val writer = PrintWriter(getBufferedWriterSuspend(it))
 
-            val builder = RequestBuilder()
+            val parser = HttpRequestParser()
 
-            while (state != State.End) {
+            while (parser.isNotCompleted()) {
                 val line = readLineSuspend(reader)
-                state = state.process(line, builder)
+                parser.read(line)
             }
 
-            val request = builder.build()
+            val request = parser.build()
             log("Request: $request")
 
             // TODO ドキュメント取得
