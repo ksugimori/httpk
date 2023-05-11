@@ -1,9 +1,6 @@
 package httpk.handler
 
-import httpk.core.HttpRequest
 import httpk.core.HttpRequestParser
-import httpk.core.RequestLine
-import httpk.core.parseRequestLine
 import httpk.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -1,10 +1,12 @@
 package httpk.core
 
+import httpk.util.getGroup
+
 class HttpRequestParser() {
     private var state: State = State.Init
 
-    var requestLine: RequestLine? = null
-    var headers: MutableList<String> = mutableListOf()
+    private var requestLine: RequestLine? = null
+    private var headers: MutableList<String> = mutableListOf()
 
     fun read(line: String) {
         state.process(this, line)
@@ -25,7 +27,6 @@ class HttpRequestParser() {
             )
         } ?: throw IllegalStateException("requestLine not initialized")
     }
-
 
     private sealed interface State {
         fun process(parser: HttpRequestParser, line: String)
@@ -54,3 +55,19 @@ class HttpRequestParser() {
     }
 }
 
+private data class RequestLine(val method: HttpMethod, val path: String, val version: HttpVersion)
+
+private val REQUEST_LINE_REGEX = """^(?<method>[A-Z]+) (?<path>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$"""
+    .toRegex(RegexOption.IGNORE_CASE)
+
+private fun parseRequestLine(requestLine: String): RequestLine {
+    return REQUEST_LINE_REGEX.matchEntire(requestLine)?.let {
+        RequestLine(
+            method = HttpMethod.from(it.getGroup("method")),
+            path = it.getGroup("path"),
+            version = HttpVersion.from(it.getGroup("version"))
+        )
+    } ?: throw RuntimeException("Not a HTTP request.") // TODO 例外作成
+
+    // TODO ヘッダー、ボディ
+}
