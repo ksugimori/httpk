@@ -1,6 +1,7 @@
 package httpk.handler
 
-import httpk.core.HttpRequestParser
+import httpk.core.HttpRequest
+import httpk.core.HttpRequestReader
 import httpk.log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,17 +15,20 @@ class HttpHandler() : Handler {
 
     override suspend fun handle(socket: Socket) {
         socket.use {
-            val reader = getBufferedReaderSuspend(it)
-            val writer = PrintWriter(getBufferedWriterSuspend(it))
+            val reader = HttpRequestReader(getBufferedReaderSuspend(it))
+            val writer = PrintWriter(getBufferedWriterSuspend(it)) // TODO HttpResponseWriter 作ろう
 
-            val parser = HttpRequestParser()
+            val requestLine = reader.readRequestLine()
+            val headers = reader.readHeaders()
+            val body = reader.readBody()
 
-            while (parser.isNotCompleted()) {
-                val line = readLineSuspend(reader)
-                parser.read(line)
-            }
-
-            val request = parser.build()
+            val request = HttpRequest(
+                method = requestLine.method,
+                path = requestLine.path,
+                version = requestLine.version,
+                headers = headers,
+                body = body
+            )
             log("Request: $request")
 
             // TODO ドキュメント取得
