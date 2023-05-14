@@ -1,5 +1,6 @@
-package httpk.core
+package httpk.core.io
 
+import httpk.core.message.RequestLine
 import httpk.util.readLineSuspending
 import java.io.BufferedReader
 import java.io.Closeable
