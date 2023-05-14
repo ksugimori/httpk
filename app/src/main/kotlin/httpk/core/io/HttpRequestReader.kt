@@ -6,10 +6,12 @@ import httpk.core.message.RequestLine
 import httpk.util.readLineSuspending
 import java.io.BufferedReader
 import java.io.Closeable
+import java.io.InputStream
+import java.nio.charset.StandardCharsets
 
 class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable by bufferedReader {
     private var state: State = State.RequestLine
-    private var hasBody: Boolean = false
+    private var contentLength: Int = 0
 
     suspend fun readRequestLine(): RequestLine {
         require(state == State.RequestLine)
@@ -30,11 +32,13 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable 
         do {
             val line = bufferedReader.readLineSuspending()
             if (line.isBlank()) {
-                state = if (hasBody) State.Body else State.End
+                state = if (headers.contentLength > 0) State.Body else State.End
             } else {
                 headers.add(HttpHeaderItem.parse(line))
             }
         } while (state == State.Header)
+
+        this.contentLength = headers.contentLength
 
         return headers
     }
@@ -42,8 +46,11 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable 
     suspend fun readBody(): String? {
         if (state != State.Body) return null
 
-        // TODO これだと微妙。Content-Length を使うべき
-        return bufferedReader.readLineSuspending()
+        // TODO contentLength は byte 数なので ascii 以外だとずれる。
+        val charArray = CharArray(contentLength)
+        bufferedReader.read(charArray)
+
+        return String(charArray)
     }
 
 }
@@ -52,3 +59,10 @@ private enum class State {
     RequestLine, Header, Body, End
 }
 
+private suspend fun InputStream.readNBytesSuspending(size: Int): ByteArray {
+    val inputStream = this
+    val byteArray = ByteArray(size)
+    inputStream.read(byteArray)
+    return byteArray
+//    return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
+}
