@@ -1,7 +1,7 @@
 package httpk.handler
 
-import httpk.core.message.HttpRequest
 import httpk.core.io.HttpRequestReader
+import httpk.core.message.*
 import httpk.log
 import httpk.util.getInputStreamSuspending
 import httpk.util.getBufferedWriterSuspending
@@ -30,8 +30,33 @@ class HttpHandler() : Handler {
             log("Request: $request")
 
             // TODO ドキュメント取得
-            // TODO Response クラス作成
-            writer.println("HTTP/1.1 200 OK")
+            // TODO HttpResponseWriter に移動
+
+            val responseBody = """
+                <!DOCTYPE html>
+                <html>
+                  <body>
+                    Hello World!
+                    Request: ${request.method} ${request.path}
+                  </body>
+                </html>
+            """.trimIndent()
+            val responseHeaders = HttpHeaders()
+            responseHeaders["Content-Type"] = "text/html"
+            responseHeaders["Content-Length"] = responseBody.toByteArray().size
+            val response = HttpResponse(
+                version = HttpVersion.HTTP_1_1,
+                status = HttpStatus.OK,
+                headers = responseHeaders,
+                body = responseBody
+            )
+
+            writer.println("${response.version} ${response.status.code} ${response.status.message}")
+            response.headers.forEach { item ->
+                writer.println("${item.key}: ${item.values.joinToString(", ")}")
+            }
+            writer.println()
+            writer.println(responseBody)
             writer.flush()
         }
 
