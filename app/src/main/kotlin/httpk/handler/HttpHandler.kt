@@ -27,7 +27,6 @@ class HttpHandler() : Handler {
                 headers = headers,
                 body = body
             )
-            log("Request: $request")
 
             // TODO ドキュメント取得
             // TODO HttpResponseWriter に移動
@@ -52,9 +51,10 @@ class HttpHandler() : Handler {
             )
 
             writer.writeResponse(response)
+
+            log("\"${request.requestLine}\" : ${response.status.code}")
         }
 
-        log("close connection: ${socket.inetAddress}")
     }
 
 }
