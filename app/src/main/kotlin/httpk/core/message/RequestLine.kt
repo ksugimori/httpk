@@ -1,4 +1,4 @@
-package httpk.core
+package httpk.core.message
 
 import httpk.util.groupValue
 

@@ -1,4 +1,4 @@
-package httpk.core
+package httpk.core.message
 
 enum class HttpVersion(private val value: String) {
     HTTP_0_9("HTTP/0.9"),

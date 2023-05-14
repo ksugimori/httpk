@@ -1,7 +1,7 @@
 package httpk.handler
 
-import httpk.core.HttpRequest
-import httpk.core.HttpRequestReader
+import httpk.core.message.HttpRequest
+import httpk.core.io.HttpRequestReader
 import httpk.log
 import httpk.util.getBufferedReaderSuspending
 import httpk.util.getBufferedWriterSuspending

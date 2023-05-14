@@ -1,4 +1,4 @@
-package httpk.core
+package httpk.core.message
 
 data class HttpRequest(
     val method: HttpMethod,
