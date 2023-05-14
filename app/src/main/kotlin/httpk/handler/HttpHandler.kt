@@ -3,7 +3,7 @@ package httpk.handler
 import httpk.core.message.HttpRequest
 import httpk.core.io.HttpRequestReader
 import httpk.log
-import httpk.util.getBufferedReaderSuspending
+import httpk.util.getInputStreamSuspending
 import httpk.util.getBufferedWriterSuspending
 import java.io.PrintWriter
 import java.net.Socket
@@ -13,7 +13,7 @@ class HttpHandler() : Handler {
 
     override suspend fun handle(socket: Socket) {
         socket.use {
-            val reader = HttpRequestReader(it.getBufferedReaderSuspending())
+            val reader = HttpRequestReader(it.getInputStreamSuspending())
             val writer = PrintWriter(it.getBufferedWriterSuspending()) // TODO HttpResponseWriter 作ろう
 
             val requestLine = reader.readRequestLine()
