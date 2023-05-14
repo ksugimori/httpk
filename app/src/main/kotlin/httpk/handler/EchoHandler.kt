@@ -1,10 +1,9 @@
 package httpk.handler
 
 import httpk.log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.BufferedWriter
+import httpk.util.getBufferedReaderSuspending
+import httpk.util.getBufferedWriterSuspending
+import httpk.util.readLineSuspending
 import java.io.PrintWriter
 import java.net.Socket
 
@@ -13,11 +12,11 @@ class EchoHandler() : Handler {
         log("connected from: ${socket.inetAddress}")
 
         socket.use {
-            val reader = getBufferedReaderSuspend(it)
-            val writer = PrintWriter(getBufferedWriterSuspend(it))
+            val reader = it.getBufferedReaderSuspending()
+            val writer = PrintWriter(it.getBufferedWriterSuspending())
 
             do {
-                val line = readLineSuspend(reader)
+                val line = reader.readLineSuspending()
                 log("got \"$line\"")
                 writer.println(line)
                 writer.flush()
@@ -27,21 +26,6 @@ class EchoHandler() : Handler {
         }
 
         log("close connection: ${socket.inetAddress}")
-    }
-
-    //
-    // private
-    //
-    private suspend fun getBufferedReaderSuspend(socket: Socket): BufferedReader {
-        return withContext(Dispatchers.IO) { socket.getInputStream() }.bufferedReader()
-    }
-
-    private suspend fun getBufferedWriterSuspend(socket: Socket): BufferedWriter {
-        return withContext(Dispatchers.IO) { socket.getOutputStream() }.bufferedWriter()
-    }
-
-    private suspend fun readLineSuspend(reader: BufferedReader): String {
-        return withContext(Dispatchers.IO) { reader.readLine() }
     }
 
 }
