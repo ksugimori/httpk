@@ -13,9 +13,9 @@ suspend fun BufferedReader.readLineSuspending(): String {
     return withContext(Dispatchers.IO) { reader.readLine() }
 }
 
-suspend fun Socket.getBufferedReaderSuspending(): BufferedReader {
+suspend fun Socket.getInputStreamSuspending(): InputStream {
     val socket = this
-    return withContext(Dispatchers.IO) { socket.getInputStream() }.bufferedReader()
+    return withContext(Dispatchers.IO) { socket.getInputStream() }
 }
 
 suspend fun Socket.getBufferedWriterSuspending(): BufferedWriter {

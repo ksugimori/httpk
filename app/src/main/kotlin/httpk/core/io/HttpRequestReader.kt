@@ -3,20 +3,19 @@ package httpk.core.io
 import httpk.core.message.HttpHeaderItem
 import httpk.core.message.HttpHeaders
 import httpk.core.message.RequestLine
-import httpk.util.readLineSuspending
-import java.io.BufferedReader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.Closeable
 import java.io.InputStream
-import java.nio.charset.StandardCharsets
 
-class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable by bufferedReader {
+class HttpRequestReader(private val inputStream: InputStream) : Closeable by inputStream {
     private var state: State = State.RequestLine
     private var contentLength: Int = 0
 
     suspend fun readRequestLine(): RequestLine {
         require(state == State.RequestLine)
 
-        val line = bufferedReader.readLineSuspending()
+        val line = inputStream.readLineSuspending()
         val requestLine = RequestLine.parse(line)
 
         state = State.Header
@@ -30,7 +29,7 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable 
         val headers = HttpHeaders()
 
         do {
-            val line = bufferedReader.readLineSuspending()
+            val line = inputStream.readLineSuspending()
             if (line.isBlank()) {
                 state = if (headers.contentLength > 0) State.Body else State.End
             } else {
@@ -46,13 +45,31 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable 
     suspend fun readBody(): String? {
         if (state != State.Body) return null
 
-        // TODO contentLength は byte 数なので ascii 以外だとずれる。
-        val charArray = CharArray(contentLength)
-        bufferedReader.read(charArray)
-
-        return String(charArray)
+//        val bytes = withContext(Dispatchers.IO) { inputStream.readNBytes(contentLength) }
+        val bytes = inputStream.readNBytesSuspending(contentLength)
+        return String(bytes)
     }
 
+}
+
+suspend fun InputStream.readLineSuspending(): String {
+    val bytes = ByteArray(1_000)
+    var index = 0
+    var charCode: Int
+
+    val inputStream = this
+    withContext(Dispatchers.IO) {
+        while (inputStream.read().also { charCode = it } != -1) {
+            if (charCode == '\r'.code) {
+                inputStream.skip(1) // ignore LF
+                break
+            }
+
+            bytes[index++] = charCode.toByte()
+        }
+    }
+
+    return String(bytes.copyOf(index))
 }
 
 private enum class State {
@@ -61,8 +78,5 @@ private enum class State {
 
 private suspend fun InputStream.readNBytesSuspending(size: Int): ByteArray {
     val inputStream = this
-    val byteArray = ByteArray(size)
-    inputStream.read(byteArray)
-    return byteArray
-//    return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
+    return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
 }

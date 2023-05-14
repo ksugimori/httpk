@@ -1,7 +1,7 @@
 package httpk.handler
 
 import httpk.log
-import httpk.util.getBufferedReaderSuspending
+import httpk.util.getInputStreamSuspending
 import httpk.util.getBufferedWriterSuspending
 import httpk.util.readLineSuspending
 import java.io.PrintWriter
@@ -12,7 +12,7 @@ class EchoHandler() : Handler {
         log("connected from: ${socket.inetAddress}")
 
         socket.use {
-            val reader = it.getBufferedReaderSuspending()
+            val reader = it.getInputStreamSuspending().bufferedReader()
             val writer = PrintWriter(it.getBufferedWriterSuspending())
 
             do {
