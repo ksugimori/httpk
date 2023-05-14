@@ -18,26 +18,6 @@ suspend fun InputStream.readNBytesSuspending(size: Int): ByteArray {
     return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
 }
 
-suspend fun InputStream.readLineSuspending(): String {
-    val bytes = ByteArray(1_000)
-    var index = 0
-    var charCode: Int
-
-    val inputStream = this
-    withContext(Dispatchers.IO) {
-        while (inputStream.read().also { charCode = it } != -1) {
-            if (charCode == '\r'.code) {
-                inputStream.skip(1) // ignore LF
-                break
-            }
-
-            bytes[index++] = charCode.toByte()
-        }
-    }
-
-    return String(bytes.copyOf(index))
-}
-
 suspend fun Socket.getInputStreamSuspending(): InputStream {
     val socket = this
     return withContext(Dispatchers.IO) { socket.getInputStream() }
