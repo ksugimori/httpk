@@ -3,12 +3,13 @@ package httpk.core.message
 import httpk.exception.InvalidHttpMessageException
 import httpk.util.groupValue
 
-class HttpHeaderItem(
+private fun String.splitByComma(): List<String> = this.split(", *".toRegex())
+
+data class HttpHeaderItem(
     val key: String,
-    val value: String
+    val values: List<String>,
 ) {
-    val valueAsList: List<String>
-        get() = value.split(", *".toRegex())
+    constructor(key: String, value: String) : this(key, value.splitByComma())
 
     companion object {
         private val REGEX = """^(?<key>[a-z-]+): +(?<value>.*)$""".toRegex(RegexOption.IGNORE_CASE)
@@ -17,7 +18,7 @@ class HttpHeaderItem(
             return REGEX.matchEntire(line)?.let {
                 HttpHeaderItem(
                     key = it.groupValue("key"),
-                    value = it.groupValue("value")
+                    values =  it.groupValue("value").splitByComma()
                 )
             } ?: throw InvalidHttpMessageException("invalid header \"$line\"")
         }

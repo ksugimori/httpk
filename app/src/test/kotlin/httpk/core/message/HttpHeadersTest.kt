@@ -1,6 +1,7 @@
 package httpk.core.message
 
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 
 class HttpHeadersTest {
@@ -18,7 +19,7 @@ class HttpHeadersTest {
         val headers = HttpHeaders()
         headers["Accept-Encoding"] = "gzip, deflate, br"
 
-        assertEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
+        assertContentEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
     }
 
     @Test
@@ -26,7 +27,7 @@ class HttpHeadersTest {
         val headers = HttpHeaders()
         headers.add(HttpHeaderItem.parse("Accept-Encoding: gzip, deflate, br"))
 
-        assertEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
+        assertContentEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
     }
 
     @Test

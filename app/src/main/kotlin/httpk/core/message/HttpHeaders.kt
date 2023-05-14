@@ -15,7 +15,7 @@ class HttpHeaders(
     }
 
     fun add(item: HttpHeaderItem) {
-        this.map[item.key.lowercase()] = item.valueAsList
+        this.map[item.key.lowercase()] = item.values
     }
 
 
