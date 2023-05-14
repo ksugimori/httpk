@@ -40,7 +40,8 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable 
     suspend fun readBody(): String? {
         if (state != State.Body) return null
 
-        return null
+        // TODO これだと微妙。Content-Length を使うべき
+        return bufferedReader.readLineSuspending()
     }
 
 }
