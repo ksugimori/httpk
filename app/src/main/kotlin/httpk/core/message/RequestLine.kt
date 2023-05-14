@@ -1,5 +1,6 @@
 package httpk.core.message
 
+import httpk.exception.InvalidHttpMessageException
 import httpk.util.groupValue
 
 data class RequestLine(
@@ -19,7 +20,7 @@ data class RequestLine(
                     path = it.groupValue("path"),
                     version = HttpVersion.from(it.groupValue("version"))
                 )
-            } ?: throw RuntimeException("Not a HTTP request.") // TODO 例外作成
+            } ?: throw InvalidHttpMessageException(line)
         }
 
     }

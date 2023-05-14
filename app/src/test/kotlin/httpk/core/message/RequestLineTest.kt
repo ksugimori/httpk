@@ -1,5 +1,7 @@
 package httpk.core.message
 
+import httpk.exception.InvalidHttpMessageException
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,5 +22,14 @@ class RequestLineTest {
         assertEquals(HttpMethod.POST, actual.method)
         assertEquals("/books", actual.path)
         assertEquals(HttpVersion.HTTP_2, actual.version)
+    }
+
+    @Test
+    fun `parse - フォーマット不正の場合 InvalidHttpMessageException が投げられること`() {
+        assertThrows<InvalidHttpMessageException> {
+            RequestLine.parse("POST HTTP/1.1") // path が無い
+        }.also {
+            assertEquals("invalid HTTP message: POST HTTP/1.1", it.message)
+        }
     }
 }
