@@ -1,11 +1,11 @@
 package httpk.handler
 
 import httpk.core.io.HttpRequestReader
+import httpk.core.io.HttpResponseWriter
 import httpk.core.message.*
 import httpk.log
 import httpk.util.getInputStreamSuspending
-import httpk.util.getBufferedWriterSuspending
-import java.io.PrintWriter
+import httpk.util.getOutputStreamSuspending
 import java.net.Socket
 
 
@@ -14,7 +14,7 @@ class HttpHandler() : Handler {
     override suspend fun handle(socket: Socket) {
         socket.use {
             val reader = HttpRequestReader(it.getInputStreamSuspending())
-            val writer = PrintWriter(it.getBufferedWriterSuspending()) // TODO HttpResponseWriter 作ろう
+            val writer = HttpResponseWriter(it.getOutputStreamSuspending())
 
             val requestLine = reader.readRequestLine()
             val headers = reader.readHeaders()
@@ -51,13 +51,7 @@ class HttpHandler() : Handler {
                 body = responseBody
             )
 
-            writer.println("${response.version} ${response.status.code} ${response.status.message}")
-            response.headers.forEach { item ->
-                writer.println("${item.key}: ${item.values.joinToString(", ")}")
-            }
-            writer.println()
-            writer.println(responseBody)
-            writer.flush()
+            writer.writeResponse(response)
         }
 
         log("close connection: ${socket.inetAddress}")

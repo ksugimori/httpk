@@ -3,8 +3,8 @@ package httpk.util
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
-import java.io.BufferedWriter
 import java.io.InputStream
+import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -23,9 +23,9 @@ suspend fun Socket.getInputStreamSuspending(): InputStream {
     return withContext(Dispatchers.IO) { socket.getInputStream() }
 }
 
-suspend fun Socket.getBufferedWriterSuspending(): BufferedWriter {
+suspend fun Socket.getOutputStreamSuspending(): OutputStream {
     val socket = this
-    return withContext(Dispatchers.IO) { socket.getOutputStream() }.bufferedWriter()
+    return withContext(Dispatchers.IO) { socket.getOutputStream() }
 }
 
 suspend fun ServerSocket.acceptSuspending(): Socket {
