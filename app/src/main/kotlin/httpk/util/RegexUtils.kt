@@ -1,5 +1,5 @@
 package httpk.util
 
-fun MatchResult.getGroup(name: String): String {
+fun MatchResult.groupValue(name: String): String {
     return this.groups[name]?.value ?: ""
 }

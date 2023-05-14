@@ -1,39 +1,39 @@
 package httpk.core
 
-import httpk.util.getGroup
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import httpk.util.readLineSuspending
 import java.io.BufferedReader
+import java.io.Closeable
 
-class HttpRequestReader(private val bufferedReader: BufferedReader) {
-    private var state: State = State.Init
-
-    private enum class State {
-        Init, Header, Body, End
-    }
+class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable by bufferedReader {
+    private var state: State = State.RequestLine
+    private var hasBody: Boolean = false
 
     suspend fun readRequestLine(): RequestLine {
-        require(state == State.Init)
+        require(state == State.RequestLine)
 
-        val line = readLineSuspend(bufferedReader)
-        val result = parseRequestLine(line)
+        val line = bufferedReader.readLineSuspending()
+        val requestLine = RequestLine.parse(line)
 
         state = State.Header
 
-        return result
+        return requestLine
     }
 
     suspend fun readHeaders(): List<String> {
         require(state == State.Header)
 
-        val resultList = mutableListOf<String>()
+        val headers = mutableListOf<String>()
 
         do {
-            val line = readLineSuspend(bufferedReader)
-            if (line.isBlank()) state = State.End else resultList.add(line)
+            val line = bufferedReader.readLineSuspending()
+            if (line.isBlank()) {
+                state = if (hasBody) State.Body else State.End
+            } else {
+                headers.add(line)
+            }
         } while (state == State.Header)
 
-        return resultList
+        return headers
     }
 
     suspend fun readBody(): String? {
@@ -41,25 +41,10 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) {
 
         return null
     }
+
 }
 
-data class RequestLine(val method: HttpMethod, val path: String, val version: HttpVersion)
-
-private val REQUEST_LINE_REGEX = """^(?<method>[A-Z]+) (?<path>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$"""
-    .toRegex(RegexOption.IGNORE_CASE)
-
-private fun parseRequestLine(requestLine: String): RequestLine {
-    return REQUEST_LINE_REGEX.matchEntire(requestLine)?.let {
-        RequestLine(
-            method = HttpMethod.from(it.getGroup("method")),
-            path = it.getGroup("path"),
-            version = HttpVersion.from(it.getGroup("version"))
-        )
-    } ?: throw RuntimeException("Not a HTTP request.") // TODO 例外作成
-
-    // TODO ヘッダー、ボディ
+private enum class State {
+    RequestLine, Header, Body, End
 }
 
-private suspend fun readLineSuspend(reader: BufferedReader): String {
-    return withContext(Dispatchers.IO) { reader.readLine() }
-}

@@ -3,9 +3,12 @@
  */
 package httpk
 
-import httpk.handler.EchoHandler
 import httpk.handler.HttpHandler
-import kotlinx.coroutines.*
+import httpk.util.acceptSuspending
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.net.ServerSocket
 
 fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $message")
@@ -21,12 +24,10 @@ class App() {
 
     private fun dispatchRequests(serverSocket: ServerSocket) = runBlocking {
         while (true) {
-            val socket = withContext(Dispatchers.IO) { serverSocket.accept() }
+            val socket = serverSocket.acceptSuspending()
 //            launch { EchoHandler().handle(socket) }
             launch { HttpHandler().handle(socket) }
         }
-
-
     }
 
 }
