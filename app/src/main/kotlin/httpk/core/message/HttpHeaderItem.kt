@@ -11,6 +11,10 @@ data class HttpHeaderItem(
 ) {
     constructor(key: String, value: String) : this(key, value.splitByComma())
 
+    override fun toString(): String {
+        return "${key}: ${values.joinToString(", ")}"
+    }
+
     companion object {
         private val REGEX = """^(?<key>[a-z-]+): +(?<value>.*)$""".toRegex(RegexOption.IGNORE_CASE)
 
