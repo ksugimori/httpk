@@ -3,7 +3,6 @@ package httpk.core.io
 import httpk.core.message.HttpHeaderItem
 import httpk.core.message.HttpHeaders
 import httpk.core.message.RequestLine
-import httpk.util.readLineSuspending
 import httpk.util.readNBytesSuspending
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,7 +16,7 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
     suspend fun readRequestLine(): RequestLine {
         require(state == State.RequestLine)
 
-        val line = inputStream.readLineSuspending()
+        val line = inputStream.readUntilCRLF()
         val requestLine = RequestLine.parse(line)
 
         state = State.Header
@@ -31,7 +30,7 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
         val headers = HttpHeaders()
 
         do {
-            val line = inputStream.readLineSuspending()
+            val line = inputStream.readUntilCRLF()
             if (line.isBlank()) {
                 contentLength = headers.contentLength
                 state = if (contentLength > 0) State.Body else State.End
@@ -54,4 +53,25 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
 
 private enum class State {
     RequestLine, Header, Body, End
+}
+
+
+private suspend fun InputStream.readUntilCRLF(): String {
+    val bytes = ByteArray(1_000)
+    var index = 0
+    var charCode: Int
+
+    val inputStream = this
+    withContext(Dispatchers.IO) {
+        while (inputStream.read().also { charCode = it } != -1) {
+            if (charCode == '\r'.code) {
+                inputStream.skip(1) // ignore LF
+                break
+            }
+
+            bytes[index++] = charCode.toByte()
+        }
+    }
+
+    return String(bytes.copyOf(index))
 }
