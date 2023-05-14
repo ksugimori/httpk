@@ -5,13 +5,20 @@ package httpk
 
 import httpk.handler.HttpHandler
 import httpk.util.acceptSuspending
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.net.ServerSocket
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
-fun log(message: String) = println("[LOG] [${Thread.currentThread().name}] $message")
+fun log(message: String) {
+    val dateTimeFormatter = DateTimeFormatter
+        .ofPattern("uuuu-MM-dd HH:mm:ss.SSS")
+        .withZone(ZoneId.of("Asia/Tokyo"))
+    val timestamp = dateTimeFormatter.format(Instant.now())
+    println("[${timestamp}] [${Thread.currentThread().name}] $message")
+}
 
 class App() {
 
