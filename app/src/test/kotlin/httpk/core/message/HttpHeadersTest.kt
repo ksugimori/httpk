@@ -3,10 +3,10 @@ package httpk.core.message
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class HttpHeaderMapTest {
+class HttpHeadersTest {
     @Test
     fun `setter, getter - OK - single value`() {
-        val headers = HttpHeaderMap()
+        val headers = HttpHeaders()
 
         headers["Content-Length"] = "99"
 
@@ -15,7 +15,7 @@ class HttpHeaderMapTest {
 
     @Test
     fun `setter, getter - OK - list values`() {
-        val headers = HttpHeaderMap()
+        val headers = HttpHeaders()
         headers["Accept-Encoding"] = "gzip, deflate, br"
 
         assertEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
@@ -23,15 +23,15 @@ class HttpHeaderMapTest {
 
     @Test
     fun `add - OK`() {
-        val headers = HttpHeaderMap()
-        headers.add(HttpHeader.parse("Accept-Encoding: gzip, deflate, br"))
+        val headers = HttpHeaders()
+        headers.add(HttpHeaderItem.parse("Accept-Encoding: gzip, deflate, br"))
 
         assertEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
     }
 
     @Test
     fun `contentLength - OK`() {
-        val headers = HttpHeaderMap()
+        val headers = HttpHeaders()
 
         // この時点では 0
         assertEquals(0, headers.contentLength)

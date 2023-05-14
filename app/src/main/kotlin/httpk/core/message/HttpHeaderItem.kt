@@ -3,7 +3,7 @@ package httpk.core.message
 import httpk.exception.InvalidHttpMessageException
 import httpk.util.groupValue
 
-class HttpHeader(
+class HttpHeaderItem(
     val key: String,
     val value: String
 ) {
@@ -13,9 +13,9 @@ class HttpHeader(
     companion object {
         private val REGEX = """^(?<key>[a-z-]+): +(?<value>.*)$""".toRegex(RegexOption.IGNORE_CASE)
 
-        fun parse(line: String): HttpHeader {
+        fun parse(line: String): HttpHeaderItem {
             return REGEX.matchEntire(line)?.let {
-                HttpHeader(
+                HttpHeaderItem(
                     key = it.groupValue("key"),
                     value = it.groupValue("value")
                 )
