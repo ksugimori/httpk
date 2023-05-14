@@ -18,5 +18,7 @@ class HttpHeaders(
         this.map[item.key.lowercase()] = item.values
     }
 
-
+    override fun toString(): String {
+        return this.map.toString()
+    }
 }

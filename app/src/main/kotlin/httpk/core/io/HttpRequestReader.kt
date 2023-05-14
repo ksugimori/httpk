@@ -1,5 +1,7 @@
 package httpk.core.io
 
+import httpk.core.message.HttpHeaderItem
+import httpk.core.message.HttpHeaders
 import httpk.core.message.RequestLine
 import httpk.util.readLineSuspending
 import java.io.BufferedReader
@@ -20,17 +22,17 @@ class HttpRequestReader(private val bufferedReader: BufferedReader) : Closeable 
         return requestLine
     }
 
-    suspend fun readHeaders(): List<String> {
+    suspend fun readHeaders(): HttpHeaders {
         require(state == State.Header)
 
-        val headers = mutableListOf<String>()
+        val headers = HttpHeaders()
 
         do {
             val line = bufferedReader.readLineSuspending()
             if (line.isBlank()) {
                 state = if (hasBody) State.Body else State.End
             } else {
-                headers.add(line)
+                headers.add(HttpHeaderItem.parse(line))
             }
         } while (state == State.Header)
 
