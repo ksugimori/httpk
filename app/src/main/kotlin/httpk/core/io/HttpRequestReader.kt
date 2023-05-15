@@ -13,11 +13,11 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
     suspend fun readRequest(): HttpRequest {
         val requestLine = inputStream.readUntilCRLF().let(RequestLine::parse)
 
-        // TODO わかりにくい
         val headers = HttpHeaders()
-        var line = ""
-        while (inputStream.readUntilCRLF().also { line = it } != "") {
-            headers.add(HttpHeaderItem.parse(line))
+        while (true) { // TODO これも微妙
+            val line = inputStream.readUntilCRLF()
+            if (line.isBlank()) break
+            HttpHeaderItem.parse(line).let(headers::add)
         }
 
         val body = if (headers.contentLength > 0) {
