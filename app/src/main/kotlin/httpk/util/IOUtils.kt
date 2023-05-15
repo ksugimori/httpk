@@ -13,11 +13,6 @@ suspend fun BufferedReader.readLineSuspending(): String {
     return withContext(Dispatchers.IO) { reader.readLine() }
 }
 
-suspend fun InputStream.readNBytesSuspending(size: Int): ByteArray {
-    val inputStream = this
-    return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
-}
-
 suspend fun Socket.getInputStreamSuspending(): InputStream {
     val socket = this
     return withContext(Dispatchers.IO) { socket.getInputStream() }

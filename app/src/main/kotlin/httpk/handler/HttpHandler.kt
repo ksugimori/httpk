@@ -16,21 +16,9 @@ class HttpHandler() : Handler {
             val reader = HttpRequestReader(it.getInputStreamSuspending())
             val writer = HttpResponseWriter(it.getOutputStreamSuspending())
 
-            val requestLine = reader.readRequestLine()
-            val headers = reader.readHeaders()
-            val body = reader.readBody()
-
-            val request = HttpRequest(
-                method = requestLine.method,
-                path = requestLine.path,
-                version = requestLine.version,
-                headers = headers,
-                body = body
-            )
+            val request = reader.readRequest()
 
             // TODO ドキュメント取得
-            // TODO HttpResponseWriter に移動
-
             val responseBody = """
                 <!DOCTYPE html>
                 <html>
@@ -40,6 +28,7 @@ class HttpHandler() : Handler {
                   </body>
                 </html>
             """.trimIndent()
+
             val responseHeaders = HttpHeaders()
             responseHeaders["Content-Type"] = "text/html"
             responseHeaders["Content-Length"] = responseBody.toByteArray().size

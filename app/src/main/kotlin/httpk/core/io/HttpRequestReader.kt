@@ -2,59 +2,45 @@ package httpk.core.io
 
 import httpk.core.message.HttpHeaderItem
 import httpk.core.message.HttpHeaders
+import httpk.core.message.HttpRequest
 import httpk.core.message.RequestLine
-import httpk.util.readNBytesSuspending
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.Closeable
 import java.io.InputStream
 
 class HttpRequestReader(private val inputStream: InputStream) : Closeable by inputStream {
-    private var state: State = State.RequestLine
-    private var contentLength: Int = 0
+    suspend fun readRequest(): HttpRequest {
+        val requestLine = inputStream.readUntilCRLF().let(RequestLine::parse)
 
-    suspend fun readRequestLine(): RequestLine {
-        require(state == State.RequestLine)
-
-        val line = inputStream.readUntilCRLF()
-        val requestLine = RequestLine.parse(line)
-
-        state = State.Header
-
-        return requestLine
-    }
-
-    suspend fun readHeaders(): HttpHeaders {
-        require(state == State.Header)
-
+        // TODO わかりにくい
         val headers = HttpHeaders()
+        var line = ""
+        while (inputStream.readUntilCRLF().also { line = it } != "") {
+            headers.add(HttpHeaderItem.parse(line))
+        }
 
-        do {
-            val line = inputStream.readUntilCRLF()
-            if (line.isBlank()) {
-                contentLength = headers.contentLength
-                state = if (contentLength > 0) State.Body else State.End
-            } else {
-                headers.add(HttpHeaderItem.parse(line))
-            }
-        } while (state == State.Header)
+        val body = if (headers.contentLength > 0) {
+            inputStream.readNBytesSuspending(headers.contentLength).let(::String)
+        } else {
+            null
+        }
 
-        return headers
-    }
-
-    suspend fun readBody(): String? {
-        if (state != State.Body) return null
-
-        val bytes = inputStream.readNBytesSuspending(contentLength)
-        return String(bytes)
+        return HttpRequest(
+            method = requestLine.method,
+            path = requestLine.path,
+            version = requestLine.version,
+            headers = headers,
+            body = body
+        )
     }
 
 }
 
-private enum class State {
-    RequestLine, Header, Body, End
+private suspend fun InputStream.readNBytesSuspending(size: Int): ByteArray {
+    val inputStream = this
+    return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
 }
-
 
 private suspend fun InputStream.readUntilCRLF(): String {
     val bytes = ByteArray(1_000)
