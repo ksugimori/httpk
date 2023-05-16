@@ -8,11 +8,6 @@ import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
-suspend fun BufferedReader.readLineSuspending(): String {
-    val reader = this
-    return withContext(Dispatchers.IO) { reader.readLine() }
-}
-
 suspend fun Socket.getInputStreamSuspending(): InputStream {
     val socket = this
     return withContext(Dispatchers.IO) { socket.getInputStream() }
