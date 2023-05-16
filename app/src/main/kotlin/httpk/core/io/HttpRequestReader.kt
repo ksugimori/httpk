@@ -10,7 +10,7 @@ import java.io.Closeable
 import java.io.InputStream
 
 class HttpRequestReader(private val inputStream: InputStream) : Closeable by inputStream {
-    suspend fun readRequest(): HttpRequest {
+    suspend fun readRequest(): HttpRequest = withContext(Dispatchers.IO) {
         val requestLine = inputStream.readUntilCRLF().let(RequestLine::parse)
 
         val headers = HttpHeaders()
@@ -21,12 +21,12 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
         }
 
         val body = if (headers.contentLength > 0) {
-            inputStream.readNBytesSuspending(headers.contentLength).let(::String)
+            inputStream.readNBytes(headers.contentLength).let(::String)
         } else {
             null
         }
 
-        return HttpRequest(
+        HttpRequest(
             method = requestLine.method,
             path = requestLine.path,
             version = requestLine.version,
@@ -35,29 +35,21 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
         )
     }
 
-}
+    private fun InputStream.readUntilCRLF(): String {
+        val bytes = ByteArray(1_000)
+        var index = 0
+        var charCode: Int
 
-private suspend fun InputStream.readNBytesSuspending(size: Int): ByteArray {
-    val inputStream = this
-    return withContext(Dispatchers.IO) { inputStream.readNBytes(size) }
-}
-
-private suspend fun InputStream.readUntilCRLF(): String {
-    val bytes = ByteArray(1_000)
-    var index = 0
-    var charCode: Int
-
-    val inputStream = this
-    withContext(Dispatchers.IO) {
-        while (inputStream.read().also { charCode = it } != -1) {
+        while (this.read().also { charCode = it } != -1) {
             if (charCode == '\r'.code) {
-                inputStream.skip(1) // ignore LF
+                this.skip(1) // ignore LF
                 break
             }
 
             bytes[index++] = charCode.toByte()
         }
+
+        return String(bytes.copyOf(index))
     }
 
-    return String(bytes.copyOf(index))
 }
