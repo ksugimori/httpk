@@ -6,6 +6,7 @@ import httpk.core.message.HttpRequest
 import httpk.core.message.RequestLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.io.InputStream
 
@@ -14,11 +15,10 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
         val requestLine = inputStream.readUntilCRLF().let(RequestLine::parse)
 
         val headers = HttpHeaders()
-        while (true) { // TODO これも微妙
-            val line = inputStream.readUntilCRLF()
-            if (line.isBlank()) break
-            HttpHeaderItem.parse(line).let(headers::add)
-        }
+        inputStream.linesSequence()
+            .takeWhile(String::isNotBlank)
+            .map(HttpHeaderItem::parse)
+            .forEach(headers::add)
 
         val body = if (headers.contentLength > 0) {
             inputStream.readNBytes(headers.contentLength).let(::String)
@@ -35,21 +35,30 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
         )
     }
 
-    private fun InputStream.readUntilCRLF(): String {
-        val bytes = ByteArray(1_000)
-        var index = 0
-        var charCode: Int
+}
 
-        while (this.read().also { charCode = it } != -1) {
-            if (charCode == '\r'.code) {
-                this.skip(1) // ignore LF
-                break
-            }
+private fun InputStream.readUntilCRLF(): String {
+    val out = ByteArrayOutputStream()
 
-            bytes[index++] = charCode.toByte()
-        }
+    var previous: Int = -1
+    var current: Int = -1
+    var isCRLF = false
+    while (true) {
+        current = this.read()
+        isCRLF = (previous == '\r'.code && current == '\n'.code)
 
-        return String(bytes.copyOf(index))
+        if (current == -1 || isCRLF) break
+
+        out.write(current)
+        previous = current
     }
 
+    val bytes = out.toByteArray()
+    return String(if (isCRLF) bytes.copyOf(bytes.size - 1) else bytes)
+}
+
+private fun InputStream.linesSequence() = sequence<String> {
+    while (true) { // TODO inputStream の終了を検知したい
+        yield(this@linesSequence.readUntilCRLF())
+    }
 }
