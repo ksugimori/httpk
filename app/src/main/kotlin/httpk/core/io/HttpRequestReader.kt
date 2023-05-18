@@ -10,6 +10,11 @@ import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.io.InputStream
 
+/**
+ * バイトストリームから HTTP リクエストを読み取るクラス。
+ *
+ * @param inputStream バイトストリーム
+ */
 class HttpRequestReader(private val inputStream: InputStream) : Closeable by inputStream {
     suspend fun readRequest(): HttpRequest = withContext(Dispatchers.IO) {
         val requestLine = inputStream.readUntilCRLF().let(RequestLine::parse)
@@ -37,6 +42,11 @@ class HttpRequestReader(private val inputStream: InputStream) : Closeable by inp
 
 }
 
+/**
+ * 改行文字（\r\n）まで読み取る。
+ *
+ * @return \r\n の直前までのバイト列を文字列にしたもの。
+ */
 private fun InputStream.readUntilCRLF(): String {
     val out = ByteArrayOutputStream()
 
@@ -51,8 +61,13 @@ private fun InputStream.readUntilCRLF(): String {
     return String(out.toByteArray()).trimEnd('\r')
 }
 
-private fun InputStream.linesSequence() = sequence<String> {
-    while (true) { // TODO inputStream の終了を検知したい
+/**
+ * [readUntilCRLF] を呼び出す無限シーケンス。
+ *
+ * @return 読み取った行のシーケンス
+ */
+private fun InputStream.linesSequence(): Sequence<String> = sequence {
+    while (true) {
         yield(this@linesSequence.readUntilCRLF())
     }
 }
