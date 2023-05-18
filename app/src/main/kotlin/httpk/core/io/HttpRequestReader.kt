@@ -42,19 +42,13 @@ private fun InputStream.readUntilCRLF(): String {
 
     var previous: Int = -1
     var current: Int = -1
-    var isCRLF = false
-    while (true) {
-        current = this.read()
-        isCRLF = (previous == '\r'.code && current == '\n'.code)
-
-        if (current == -1 || isCRLF) break
-
+    while (this.read().also { current = it } != -1) {
+        if (previous == '\r'.code && current == '\n'.code) break
         out.write(current)
         previous = current
     }
 
-    val bytes = out.toByteArray()
-    return String(if (isCRLF) bytes.copyOf(bytes.size - 1) else bytes)
+    return String(out.toByteArray()).trimEnd('\r')
 }
 
 private fun InputStream.linesSequence() = sequence<String> {
