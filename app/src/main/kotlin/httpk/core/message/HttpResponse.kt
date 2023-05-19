@@ -1,7 +1,5 @@
 package httpk.core.message
 
-import httpk.core.io.HttpResponseWriter
-
 data class HttpResponse(
     val version: HttpVersion,
     val status: HttpStatus,
