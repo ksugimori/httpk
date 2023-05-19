@@ -10,14 +10,13 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-class HttpHandler() : Handler {
+class Worker() {
 
-    override suspend fun handle(socket: Socket) {
-        socket.use { it ->
-            val request = readHttpRequest(it)
+    suspend fun execute(socket: Socket) {
+        val request = readHttpRequest(socket)
 
-            // TODO ドキュメント取得
-            val responseBody = """
+        // TODO ドキュメント取得
+        val responseBody = """
                 <!DOCTYPE html>
                 <html>
                   <body>
@@ -27,21 +26,19 @@ class HttpHandler() : Handler {
                 </html>
             """.trimIndent()
 
-            val responseHeaders = HttpHeaders()
-            responseHeaders["Content-Type"] = "text/html"
-            responseHeaders["Content-Length"] = responseBody.toByteArray().size
-            val response = HttpResponse(
-                version = HttpVersion.HTTP_1_1,
-                status = HttpStatus.OK,
-                headers = responseHeaders,
-                body = responseBody
-            )
+        val responseHeaders = HttpHeaders()
+        responseHeaders["Content-Type"] = "text/html"
+        responseHeaders["Content-Length"] = responseBody.toByteArray().size
+        val response = HttpResponse(
+            version = HttpVersion.HTTP_1_1,
+            status = HttpStatus.OK,
+            headers = responseHeaders,
+            body = responseBody
+        )
 
-            writeHttpResponse(it, response)
+        writeHttpResponse(socket, response)
 
-            log("\"${request.requestLine}\" : ${response.status.code}")
-        }
-
+        log("\"${request.requestLine}\" : ${response.status.code}")
     }
 
     private suspend fun readHttpRequest(socket: Socket): HttpRequest = withContext(Dispatchers.IO) {
