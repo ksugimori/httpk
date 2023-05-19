@@ -1,22 +1,19 @@
 package httpk.handler
 
-import httpk.core.io.HttpResponseWriter
 import httpk.core.message.*
 import httpk.log
-import httpk.util.getOutputStreamSuspending
 import httpk.util.linesSequence
 import httpk.util.readLine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.PrintWriter
 import java.net.Socket
 
 
 class HttpHandler() : Handler {
 
     override suspend fun handle(socket: Socket) {
-        socket.use {
-            val writer = HttpResponseWriter(it.getOutputStreamSuspending())
-
+        socket.use { it ->
             val request = readHttpRequest(it)
 
             // TODO ドキュメント取得
@@ -40,7 +37,7 @@ class HttpHandler() : Handler {
                 body = responseBody
             )
 
-            writer.writeResponse(response)
+            writeHttpResponse(it, response)
 
             log("\"${request.requestLine}\" : ${response.status.code}")
         }
@@ -73,4 +70,20 @@ class HttpHandler() : Handler {
         )
     }
 
+    private suspend fun writeHttpResponse(socket: Socket, response: HttpResponse) = withContext(Dispatchers.IO) {
+        val writer = PrintWriter(socket.getOutputStream())
+
+        writer.print("${response.statusLine}$CRLF")
+        response.headers.forEach { item ->
+            writer.print("$item$CRLF")
+        }
+        writer.print(CRLF)
+        writer.print(response.body)
+
+        writer.flush()
+    }
+
+    companion object {
+        private const val CRLF = "\r\n"
+    }
 }
