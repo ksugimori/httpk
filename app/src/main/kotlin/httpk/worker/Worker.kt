@@ -1,4 +1,4 @@
-package httpk.handler
+package httpk.worker
 
 import httpk.core.message.*
 import httpk.log
@@ -10,10 +10,10 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-class Worker() {
+class Worker(private val socket: Socket) {
 
-    suspend fun execute(socket: Socket) {
-        val request = readHttpRequest(socket)
+    suspend fun execute() {
+        val request = readHttpRequest()
 
         // TODO ドキュメント取得
         val responseBody = """
@@ -36,12 +36,12 @@ class Worker() {
             body = responseBody
         )
 
-        writeHttpResponse(socket, response)
+        writeHttpResponse(response)
 
         log("\"${request.requestLine}\" : ${response.status.code}")
     }
 
-    private suspend fun readHttpRequest(socket: Socket): HttpRequest = withContext(Dispatchers.IO) {
+    private suspend fun readHttpRequest(): HttpRequest = withContext(Dispatchers.IO) {
         val inputStream = socket.getInputStream()
 
         val requestLine = inputStream.readLine().let { RequestLine.parse(it) }
@@ -67,7 +67,7 @@ class Worker() {
         )
     }
 
-    private suspend fun writeHttpResponse(socket: Socket, response: HttpResponse) = withContext(Dispatchers.IO) {
+    private suspend fun writeHttpResponse(response: HttpResponse) = withContext(Dispatchers.IO) {
         val writer = PrintWriter(socket.getOutputStream())
 
         writer.print("${response.statusLine}$CRLF")
