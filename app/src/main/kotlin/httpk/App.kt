@@ -3,7 +3,7 @@
  */
 package httpk
 
-import httpk.handler.Worker
+import httpk.worker.Worker
 import httpk.util.acceptSuspending
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -33,7 +33,7 @@ class App() {
         while (true) {
             val socket = serverSocket.acceptSuspending()
             launch {
-                socket.use { Worker().execute(it) }
+                socket.use { Worker(it).execute() }
             }
         }
     }
