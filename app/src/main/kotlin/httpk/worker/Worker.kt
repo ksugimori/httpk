@@ -1,6 +1,8 @@
 package httpk.worker
 
 import httpk.core.message.*
+import httpk.handler.DummyHttpHandler
+import httpk.handler.HttpHandler
 import httpk.log
 import httpk.util.linesSequence
 import httpk.util.readLine
@@ -15,26 +17,8 @@ class Worker(private val socket: Socket) {
     suspend fun execute() {
         val request = readHttpRequest()
 
-        // TODO ドキュメント取得
-        val responseBody = """
-                <!DOCTYPE html>
-                <html>
-                  <body>
-                    Hello World!
-                    Request: ${request.method} ${request.path}
-                  </body>
-                </html>
-            """.trimIndent()
-
-        val responseHeaders = HttpHeaders()
-        responseHeaders["Content-Type"] = "text/html"
-        responseHeaders["Content-Length"] = responseBody.toByteArray().size
-        val response = HttpResponse(
-            version = HttpVersion.HTTP_1_1,
-            status = HttpStatus.OK,
-            headers = responseHeaders,
-            body = responseBody
-        )
+        val handler: HttpHandler = DummyHttpHandler()
+        val response = handler.handle(request)
 
         writeHttpResponse(response)
 
