@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -37,11 +36,6 @@ fun InputStream.linesSequence(): Sequence<String> = sequence {
     while (true) {
         yield(this@linesSequence.readLine())
     }
-}
-
-suspend fun Socket.getOutputStreamSuspending(): OutputStream {
-    val socket = this
-    return withContext(Dispatchers.IO) { socket.getOutputStream() }
 }
 
 suspend fun ServerSocket.acceptSuspending(): Socket {
