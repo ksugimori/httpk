@@ -19,12 +19,9 @@ data class HttpHeaderItem(
         private val REGEX = """^(?<key>[a-z-]+): +(?<value>.*)$""".toRegex(RegexOption.IGNORE_CASE)
 
         fun parse(line: String): HttpHeaderItem {
-            return REGEX.matchEntire(line)?.let {
-                HttpHeaderItem(
-                    key = it.groupValue("key"),
-                    values =  it.groupValue("value").splitByComma()
-                )
-            } ?: throw InvalidHttpMessageException("invalid header \"$line\"")
+            return REGEX.matchEntire(line)
+                ?.let { HttpHeaderItem(it.groupValue("key"), it.groupValue("value")) }
+                ?: throw InvalidHttpMessageException("invalid header \"$line\"")
         }
     }
 
