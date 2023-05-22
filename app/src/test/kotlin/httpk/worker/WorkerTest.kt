@@ -44,8 +44,8 @@ class WorkerTest {
         assertEquals(
             expected = listOf(
                 "HTTP/1.1 200 OK",
-                "content-type: text/html",
-                "content-length: 90",
+                "Content-Type: text/html",
+                "Content-Length: 90",
                 ""
             ),
             actual = output.toString().split("\r\n").take(4)

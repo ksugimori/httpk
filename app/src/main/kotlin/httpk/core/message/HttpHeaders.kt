@@ -11,11 +11,11 @@ class HttpHeaders(
     }
 
     operator fun get(key: String): List<String>? {
-        return headerItems[key.lowercase()]
+        return headerItems[key]
     }
 
     fun add(item: HttpHeaderItem) {
-        this.headerItems[item.key.lowercase()] = item.values
+        this.headerItems[item.key] = item.values
     }
 
     override fun toString(): String {
