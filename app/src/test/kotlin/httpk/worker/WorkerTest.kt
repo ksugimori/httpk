@@ -40,6 +40,15 @@ class WorkerTest {
             Worker(mockSocket).execute()
         }
 
-        assertEquals("hoge", output.toString(Charsets.UTF_8))
+        // TODO 固定のレスポンスしかテストできないので Handler を Inject できるようにしたい
+        assertEquals(
+            expected = listOf(
+                "HTTP/1.1 200 OK",
+                "content-type: text/html",
+                "content-length: 90",
+                ""
+            ),
+            actual = output.toString().split("\r\n").take(4)
+        )
     }
 }
