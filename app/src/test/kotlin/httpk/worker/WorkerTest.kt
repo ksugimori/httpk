@@ -44,12 +44,10 @@ class WorkerTest {
             HttpResponse(
                 status = HttpStatus.CREATED,
                 version = HttpVersion.HTTP_1_1,
-                headers = HttpHeaders(
-                    mutableMapOf(
-                        "Content-Type" to listOf("application/json"),
-                        "Content-Length" to listOf("26")
-                    )
-                ),
+                headers = HttpHeaders().apply {
+                    this["Content-Type"] = "application/json"
+                    this["Content-Length"] = "26"
+                },
                 body = "{\"id\": 99, \"name\": \"test\"}",
             )
         }
