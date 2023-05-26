@@ -37,7 +37,7 @@ class WorkerTest {
         )
 
         runBlocking {
-            Worker(mockSocket).execute()
+            Worker().execute(mockSocket)
         }
 
         // TODO 固定のレスポンスしかテストできないので Handler を Inject できるようにしたい
