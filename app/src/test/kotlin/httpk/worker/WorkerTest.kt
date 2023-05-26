@@ -1,5 +1,7 @@
 package httpk.worker
 
+import httpk.core.message.*
+import httpk.handler.HttpHandler
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -15,6 +17,22 @@ private class MockSocket(
 ) : Socket() {
     override fun getInputStream(): InputStream? = this.inputStreamMock
     override fun getOutputStream(): OutputStream? = this.outputStreamMock
+}
+
+private class MockHttpHandler : HttpHandler {
+    override fun handle(request: HttpRequest): HttpResponse {
+        return HttpResponse(
+            status = HttpStatus.CREATED,
+            version = HttpVersion.HTTP_1_1,
+            headers = HttpHeaders(
+                mutableMapOf(
+                    "Content-Type" to listOf("application/json"),
+                    "Content-Length" to listOf("26")
+                )
+            ),
+            body = "{\"id\": 99, \"name\": \"test\"}",
+        )
+    }
 }
 
 
@@ -36,19 +54,21 @@ class WorkerTest {
             outputStreamMock = output
         )
 
+        val worker = Worker(MockHttpHandler())
+
         runBlocking {
-            Worker().execute(mockSocket)
+            worker.execute(mockSocket)
         }
 
-        // TODO 固定のレスポンスしかテストできないので Handler を Inject できるようにしたい
         assertEquals(
             expected = listOf(
-                "HTTP/1.1 200 OK",
-                "Content-Type: text/html",
-                "Content-Length: 90",
-                ""
+                "HTTP/1.1 201 Created",
+                "Content-Type: application/json",
+                "Content-Length: 26",
+                "",
+                "{\"id\": 99, \"name\": \"test\"}"
             ),
-            actual = output.toString().split("\r\n").take(4)
+            actual = output.toString().split("\r\n")
         )
     }
 }

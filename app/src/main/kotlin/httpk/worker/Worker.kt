@@ -12,14 +12,11 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-class Worker() {
+class Worker(private val handler: HttpHandler = DummyHttpHandler()) {
 
     suspend fun execute(socket: Socket) {
         val request = socket.readHttpRequest()
-
-        val handler: HttpHandler = DummyHttpHandler()
         val response = handler.handle(request)
-
         socket.writeHttpResponse(response)
 
         log("\"${request.requestLine}\" : ${response.status.code}")
