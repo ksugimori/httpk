@@ -1,6 +1,9 @@
 package httpk.worker
 
-import httpk.core.message.*
+import httpk.core.message.HttpHeaders
+import httpk.core.message.HttpResponse
+import httpk.core.message.HttpStatus
+import httpk.core.message.HttpVersion
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -56,14 +59,14 @@ class WorkerTest {
         }
 
         assertEquals(
-            expected = listOf(
-                "HTTP/1.1 201 Created",
-                "Content-Type: application/json",
-                "Content-Length: 26",
-                "",
-                "{\"id\": 99, \"name\": \"test\"}"
-            ),
-            actual = output.toString().split("\r\n")
+            expected = buildString {
+                append("HTTP/1.1 201 Created").append("\r\n")
+                append("Content-Type: application/json").append("\r\n")
+                append("Content-Length: 26").append("\r\n")
+                append("\r\n")
+                append("{\"id\": 99, \"name\": \"test\"}")
+            },
+            actual = output.toString()
         )
     }
 }
