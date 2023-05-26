@@ -2,9 +2,8 @@ package httpk.handler
 
 import httpk.core.message.*
 
-class DummyHttpHandler : HttpHandler {
-    override fun handle(request: HttpRequest): HttpResponse {
-        val responseBody = """
+val DummyHttpHandler: HttpHandler = { request ->
+    val responseBody = """
                 <!DOCTYPE html>
                 <html>
                   <body>
@@ -14,15 +13,14 @@ class DummyHttpHandler : HttpHandler {
                 </html>
             """.trimIndent()
 
-        val responseHeaders = HttpHeaders()
-        responseHeaders["Content-Type"] = "text/html"
-        responseHeaders["Content-Length"] = responseBody.toByteArray().size
+    val responseHeaders = HttpHeaders()
+    responseHeaders["Content-Type"] = "text/html"
+    responseHeaders["Content-Length"] = responseBody.toByteArray().size
 
-        return HttpResponse(
-            version = HttpVersion.HTTP_1_1,
-            status = HttpStatus.OK,
-            headers = responseHeaders,
-            body = responseBody
-        )
-    }
+    HttpResponse(
+        version = HttpVersion.HTTP_1_1,
+        status = HttpStatus.OK,
+        headers = responseHeaders,
+        body = responseBody
+    )
 }
