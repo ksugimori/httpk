@@ -12,56 +12,61 @@ import java.io.PrintWriter
 import java.net.Socket
 
 
-class Worker(private val socket: Socket) {
+class Worker() {
 
-    suspend fun execute() {
-        val request = readHttpRequest()
+    suspend fun execute(socket: Socket) {
+        val request = socket.readHttpRequest()
 
         val handler: HttpHandler = DummyHttpHandler()
         val response = handler.handle(request)
 
-        writeHttpResponse(response)
+        socket.writeHttpResponse(response)
 
         log("\"${request.requestLine}\" : ${response.status.code}")
     }
 
-    private suspend fun readHttpRequest(): HttpRequest = withContext(Dispatchers.IO) {
-        val inputStream = socket.getInputStream()
+    private suspend fun Socket.readHttpRequest(): HttpRequest {
+        val inputStream = this.getInputStream()
 
-        val requestLine = inputStream.readLine().let { RequestLine.parse(it) }
+        return withContext(Dispatchers.IO) {
 
-        val headers = HttpHeaders()
-        inputStream.linesSequence()
-            .takeWhile { it.isNotBlank() }
-            .map { HttpHeaderItem.parse(it) }
-            .forEach { headers.add(it) }
+            val requestLine = inputStream.readLine().let { RequestLine.parse(it) }
 
-        val body = if (headers.contentLength > 0) {
-            String(inputStream.readNBytes(headers.contentLength))
-        } else {
-            null
+            val headers = HttpHeaders()
+            inputStream.linesSequence()
+                .takeWhile { it.isNotBlank() }
+                .map { HttpHeaderItem.parse(it) }
+                .forEach { headers.add(it) }
+
+            val body = if (headers.contentLength > 0) {
+                String(inputStream.readNBytes(headers.contentLength))
+            } else {
+                null
+            }
+
+            HttpRequest(
+                method = requestLine.method,
+                path = requestLine.path,
+                version = requestLine.version,
+                headers = headers,
+                body = body
+            )
         }
-
-        HttpRequest(
-            method = requestLine.method,
-            path = requestLine.path,
-            version = requestLine.version,
-            headers = headers,
-            body = body
-        )
     }
 
-    private suspend fun writeHttpResponse(response: HttpResponse) = withContext(Dispatchers.IO) {
-        val writer = PrintWriter(socket.getOutputStream())
+    private suspend fun Socket.writeHttpResponse(response: HttpResponse) {
+        val writer = PrintWriter(this.getOutputStream())
 
-        writer.print("${response.statusLine}$CRLF")
-        response.headers.forEach { item ->
-            writer.print("$item$CRLF")
+        withContext(Dispatchers.IO) {
+            writer.print("${response.statusLine}$CRLF")
+            response.headers.forEach { item ->
+                writer.print("$item$CRLF")
+            }
+            writer.print(CRLF)
+            writer.print(response.body)
+
+            writer.flush()
         }
-        writer.print(CRLF)
-        writer.print(response.body)
-
-        writer.flush()
     }
 
     companion object {

@@ -33,7 +33,7 @@ class App() {
         while (true) {
             val socket = serverSocket.acceptSuspending()
             launch {
-                socket.use { Worker(it).execute() }
+                socket.use { Worker().execute(it) }
             }
         }
     }
