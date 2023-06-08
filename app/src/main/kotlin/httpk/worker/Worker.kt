@@ -30,8 +30,8 @@ class Worker(private val handlerMethod: HttpHandler = DummyHttpHandler) {
         val headers = HttpHeaders()
         inputStream.linesSequence()
             .takeWhile { it.isNotBlank() }
-            .map { HttpHeaderItem.parse(it) }
-            .forEach { headers.add(it) }
+            .map { HttpHeaderParser.parse(it) }
+            .forEach { (key, values) -> headers[key] = values }
 
         val body = if (headers.contentLength > 0) {
             String(inputStream.readNBytes(headers.contentLength))
@@ -52,8 +52,8 @@ class Worker(private val handlerMethod: HttpHandler = DummyHttpHandler) {
         val writer = PrintWriter(this@writeHttpResponse.getOutputStream())
 
         writer.print("${response.statusLine}$CRLF")
-        response.headers.forEach { item ->
-            writer.print("$item$CRLF")
+        response.headers.forEach { (key, values) ->
+            writer.print("$key: ${values.joinToString(", ")}$CRLF")
         }
         writer.print(CRLF)
         writer.print(response.body)

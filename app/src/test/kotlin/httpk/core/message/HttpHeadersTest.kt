@@ -23,14 +23,6 @@ class HttpHeadersTest {
     }
 
     @Test
-    fun `add - OK`() {
-        val headers = HttpHeaders()
-        headers.add(HttpHeaderItem.parse("Accept-Encoding: gzip, deflate, br"))
-
-        assertContentEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
-    }
-
-    @Test
     fun `contentLength - OK`() {
         val headers = HttpHeaders()
 
