@@ -1,24 +1,22 @@
 package httpk.core.message
 
 class HttpHeaders(
-    private val headerItems: MutableMap<String, List<String>> = mutableMapOf()
-) {
+    private val headers: MutableMap<String, List<String>> = mutableMapOf()
+) : Map<String, List<String>> by headers {
     val contentLength: Int
-        get() = this["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
+        get() = headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
 
     operator fun set(key: String, value: Any) {
-        headerItems[key] = HttpHeaderParser.splitByComma(value.toString())
-    }
+        val valuesList: List<String> = when (value) {
+            is List<*> -> value.map { it.toString() }
+            is String -> HttpHeaderParser.splitByComma(value)
+            else -> listOf(value.toString())
+        }
 
-    operator fun get(key: String): List<String>? {
-        return headerItems[key]
+        headers[key] = valuesList
     }
 
     override fun toString(): String {
-        return this.headerItems.toString()
-    }
-
-    fun forEach(action: (Pair<String, List<String>>) -> Unit) {
-        this.headerItems.toList().forEach(action)
+        return headers.toString()
     }
 }
