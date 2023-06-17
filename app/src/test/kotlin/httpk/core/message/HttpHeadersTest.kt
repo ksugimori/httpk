@@ -6,18 +6,18 @@ import kotlin.test.assertEquals
 
 class HttpHeadersTest {
     @Test
-    fun `setter, getter - OK - single value`() {
+    fun `add - OK - single value`() {
         val headers = HttpHeaders()
 
-        headers["Content-Length"] = "99"
+        headers.add("Content-Length", "99")
 
         assertEquals(listOf("99"), headers["Content-Length"])
     }
 
     @Test
-    fun `setter, getter - OK - list values`() {
+    fun `addAll - OK - list values`() {
         val headers = HttpHeaders()
-        headers["Accept-Encoding"] = "gzip, deflate, br"
+        headers.addAll("Accept-Encoding", listOf("gzip", "deflate", "br"))
 
         assertContentEquals(listOf("gzip", "deflate", "br"), headers["Accept-Encoding"])
     }
@@ -29,7 +29,7 @@ class HttpHeadersTest {
         // この時点では 0
         assertEquals(0, headers.contentLength)
 
-        headers["Content-Length"] = "123"
+        headers.add("Content-Length", "123")
         assertEquals(123, headers.contentLength)
     }
 }

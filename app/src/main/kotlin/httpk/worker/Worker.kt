@@ -21,7 +21,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
     }
 
     private fun Socket.readHttpRequest(): HttpRequest {
-        val inputStream = this@readHttpRequest.getInputStream()
+        val inputStream = this.getInputStream()
 
         val requestLine = inputStream.readLine().let { RequestLine.parse(it) }
 
@@ -29,7 +29,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         inputStream.linesSequence()
             .takeWhile { it.isNotBlank() }
             .map { HttpHeaderParser.parse(it) }
-            .forEach { (key, values) -> headers[key] = values }
+            .forEach { (name, values) -> headers.addAll(name, values) }
 
         val body = if (headers.contentLength > 0) {
             String(inputStream.readNBytes(headers.contentLength))
