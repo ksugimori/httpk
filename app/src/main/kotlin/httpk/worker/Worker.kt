@@ -6,15 +6,13 @@ import httpk.handler.HttpHandler
 import httpk.log
 import httpk.util.linesSequence
 import httpk.util.readLine
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.PrintWriter
 import java.net.Socket
 
 
 class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
 
-    suspend fun execute(socket: Socket) {
+    fun execute(socket: Socket) {
         val request = socket.readHttpRequest()
         val response = httpHandler.handle(request)
         socket.writeHttpResponse(response)
@@ -22,7 +20,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         log("\"${request.requestLine}\" : ${response.status.code}")
     }
 
-    private suspend fun Socket.readHttpRequest(): HttpRequest = withContext(Dispatchers.IO) {
+    private fun Socket.readHttpRequest(): HttpRequest {
         val inputStream = this@readHttpRequest.getInputStream()
 
         val requestLine = inputStream.readLine().let { RequestLine.parse(it) }
@@ -39,7 +37,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
             null
         }
 
-        HttpRequest(
+        return HttpRequest(
             method = requestLine.method,
             path = requestLine.path,
             version = requestLine.version,
@@ -48,7 +46,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         )
     }
 
-    private suspend fun Socket.writeHttpResponse(response: HttpResponse) = withContext(Dispatchers.IO) {
+    private fun Socket.writeHttpResponse(response: HttpResponse) {
         val writer = PrintWriter(this@writeHttpResponse.getOutputStream())
 
         writer.print("${response.statusLine}$CRLF")
