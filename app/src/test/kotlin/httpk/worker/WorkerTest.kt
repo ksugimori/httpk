@@ -42,9 +42,9 @@ class WorkerTest {
                 return HttpResponse(
                     status = HttpStatus.CREATED,
                     version = HttpVersion.HTTP_1_1,
-                    headers = HttpHeaders().apply {
-                        this.add("Content-Type", "application/json")
-                        this.add("Content-Length", "26")
+                    headers = HttpHeaders {
+                        add("Content-Type", "application/json")
+                        add("Content-Length", "26")
                     },
                     body = "{\"id\": 99, \"name\": \"test\"}",
                 )

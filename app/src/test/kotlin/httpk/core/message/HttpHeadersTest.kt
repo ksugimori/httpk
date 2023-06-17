@@ -6,6 +6,17 @@ import kotlin.test.assertEquals
 
 class HttpHeadersTest {
     @Test
+    fun `constructor - OK - `() {
+        val result = HttpHeaders {
+            add("Hoge", 100)
+            addAll("Fuga", listOf("200", "300"))
+        }
+
+        assertEquals(listOf("100"), result["Hoge"])
+        assertEquals(listOf("200", "300"), result["Fuga"])
+    }
+
+    @Test
     fun `add - OK - single value`() {
         val headers = HttpHeaders()
 
