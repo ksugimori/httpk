@@ -5,6 +5,7 @@ package httpk
 
 import httpk.worker.Worker
 import java.net.ServerSocket
+import java.net.Socket
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -23,13 +24,12 @@ class App() {
         val serverSocket = ServerSocket(port)
         log("server start. waiting on port $port")
 
-        serverSocket.use { dispatchRequests(it) }
-    }
-
-    private fun dispatchRequests(serverSocket: ServerSocket) {
-        while (true) {
-            val socket = serverSocket.accept()
-            socket.use { Worker().execute(it) }
+        serverSocket.use {
+            while (true) {
+                val socket = it.accept()
+                val worker = Worker()
+                socket.use(worker::execute)
+            }
         }
     }
 

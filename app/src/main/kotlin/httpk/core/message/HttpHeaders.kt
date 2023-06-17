@@ -6,8 +6,12 @@ class HttpHeaders(
     val contentLength: Int
         get() = headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
 
-    operator fun set(key: String, value: Any) {
-        headers[key] = if (value is String) HttpHeaderParser.splitByComma(value) else listOf(value.toString())
+    fun add(headerName: String, headerValue: Any) {
+        headers[headerName] = HttpHeaderParser.splitByComma(headerValue.toString())
+    }
+
+    fun addAll(headerName: String, headerValues: List<String>) {
+        headers[headerName] = headerValues
     }
 
     override fun toString(): String {

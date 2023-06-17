@@ -15,8 +15,8 @@ class DummyHttpHandler : HttpHandler {
             """.trimIndent()
 
         val responseHeaders = HttpHeaders()
-        responseHeaders["Content-Type"] = "text/html"
-        responseHeaders["Content-Length"] = responseBody.toByteArray().size
+        responseHeaders.add("Content-Type", "text/html")
+        responseHeaders.add("Content-Length", responseBody.toByteArray().size)
 
         return HttpResponse(
             version = HttpVersion.HTTP_1_1,
