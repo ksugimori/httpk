@@ -3,6 +3,10 @@ package httpk.core.message
 class HttpHeaders(
     private val headers: MutableMap<String, List<String>> = mutableMapOf()
 ) : Map<String, List<String>> by headers {
+    constructor(builderAction: HttpHeaders.() -> Unit) : this() {
+        builderAction()
+    }
+
     val contentLength: Int
         get() = headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
 
