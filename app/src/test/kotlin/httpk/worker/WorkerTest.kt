@@ -2,7 +2,6 @@ package httpk.worker
 
 import httpk.core.message.*
 import httpk.handler.HttpHandler
-import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -52,9 +51,7 @@ class WorkerTest {
             }
         }
 
-        runBlocking {
-            Worker(mockHttpHandler).execute(mockSocket)
-        }
+        Worker(mockHttpHandler).execute(mockSocket)
 
         assertEquals(
             expected = buildString {
