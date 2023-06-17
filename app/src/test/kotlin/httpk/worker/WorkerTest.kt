@@ -1,9 +1,7 @@
 package httpk.worker
 
-import httpk.core.message.HttpHeaders
-import httpk.core.message.HttpResponse
-import httpk.core.message.HttpStatus
-import httpk.core.message.HttpVersion
+import httpk.core.message.*
+import httpk.handler.HttpHandler
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -40,20 +38,22 @@ class WorkerTest {
             outputStreamMock = output
         )
 
-        val worker = Worker {
-            HttpResponse(
-                status = HttpStatus.CREATED,
-                version = HttpVersion.HTTP_1_1,
-                headers = HttpHeaders().apply {
-                    this["Content-Type"] = "application/json"
-                    this["Content-Length"] = "26"
-                },
-                body = "{\"id\": 99, \"name\": \"test\"}",
-            )
+        val mockHttpHandler = object : HttpHandler {
+            override fun handle(request: HttpRequest): HttpResponse {
+                return HttpResponse(
+                    status = HttpStatus.CREATED,
+                    version = HttpVersion.HTTP_1_1,
+                    headers = HttpHeaders().apply {
+                        this["Content-Type"] = "application/json"
+                        this["Content-Length"] = "26"
+                    },
+                    body = "{\"id\": 99, \"name\": \"test\"}",
+                )
+            }
         }
 
         runBlocking {
-            worker.execute(mockSocket)
+            Worker(mockHttpHandler).execute(mockSocket)
         }
 
         assertEquals(
