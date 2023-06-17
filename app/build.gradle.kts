@@ -25,14 +25,21 @@ dependencies {
 
     // Use the JUnit 5 integration.
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.9.2")
-
-    // This dependency is used by the application.
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0-RC")
 }
 
 application {
     // Define the main class for the application.
     mainClass.set("httpk.AppKt")
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "httpk.AppKt"
+    }
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.named<Test>("test") {

@@ -1,11 +1,7 @@
 package httpk.util
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.net.ServerSocket
-import java.net.Socket
 
 
 /**
@@ -36,9 +32,4 @@ fun InputStream.linesSequence(): Sequence<String> = sequence {
     while (true) {
         yield(this@linesSequence.readLine())
     }
-}
-
-suspend fun ServerSocket.acceptSuspending(): Socket {
-    val serverSocket = this
-    return withContext(Dispatchers.IO) { serverSocket.accept() }
 }

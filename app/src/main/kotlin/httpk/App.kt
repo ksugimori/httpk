@@ -4,9 +4,6 @@
 package httpk
 
 import httpk.worker.Worker
-import httpk.util.acceptSuspending
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.net.ServerSocket
 import java.time.Instant
 import java.time.ZoneId
@@ -29,12 +26,10 @@ class App() {
         serverSocket.use { dispatchRequests(it) }
     }
 
-    private fun dispatchRequests(serverSocket: ServerSocket) = runBlocking {
+    private fun dispatchRequests(serverSocket: ServerSocket) {
         while (true) {
-            val socket = serverSocket.acceptSuspending()
-            launch {
-                socket.use { Worker().execute(it) }
-            }
+            val socket = serverSocket.accept()
+            socket.use { Worker().execute(it) }
         }
     }
 
@@ -42,7 +37,6 @@ class App() {
 
 fun main() {
     Runtime.getRuntime().addShutdownHook(Thread { log("server terminated.") })
-    System.setProperty("kotlinx.coroutines.debug", "on")
 
     App().listen(8080)
 }
