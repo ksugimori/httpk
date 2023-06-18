@@ -6,8 +6,6 @@ import httpk.core.message.HttpRequest
 import httpk.core.message.RequestLine
 import java.io.InputStream
 
-// TODO テスト作成
-
 class HttpReader(private val inputStream: InputStream) {
     fun readRequest(): HttpRequest {
 
