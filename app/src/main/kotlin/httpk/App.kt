@@ -3,9 +3,7 @@
  */
 package httpk
 
-import httpk.worker.Worker
 import java.net.ServerSocket
-import java.net.Socket
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

@@ -1,7 +1,7 @@
 package httpk.core.message
 
 import httpk.exception.InvalidHttpMessageException
-import httpk.util.groupValue
+import httpk.core.regex.groupValue
 
 data class RequestLine(
     val method: HttpMethod,

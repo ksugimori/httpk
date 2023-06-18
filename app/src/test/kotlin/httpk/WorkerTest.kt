@@ -1,4 +1,4 @@
-package httpk.worker
+package httpk
 
 import httpk.core.message.*
 import httpk.handler.HttpHandler
