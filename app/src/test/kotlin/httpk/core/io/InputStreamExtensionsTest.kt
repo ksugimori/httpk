@@ -1,12 +1,10 @@
 package httpk.core.io
 
-import httpk.core.io.linesSequence
-import httpk.core.io.readLine
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals
 
-class IOUtilsTest {
+class InputStreamExtensionsTest {
 
     @Test
     fun testReadLine() {
