@@ -6,7 +6,4 @@ data class HttpRequest(
     val version: HttpVersion,
     val headers: HttpHeaders,
     val body: String? = null
-) {
-    val requestLine: String
-        get() = "$method $path $version"
-}
+)

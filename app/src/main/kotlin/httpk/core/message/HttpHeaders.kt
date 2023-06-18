@@ -11,7 +11,7 @@ class HttpHeaders(
         get() = headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
 
     fun add(headerName: String, headerValue: Any) {
-        headers[headerName] = HttpHeaderParser.splitByComma(headerValue.toString())
+        headers[headerName] = listOf(headerValue.toString())
     }
 
     fun addAll(headerName: String, headerValues: List<String>) {
