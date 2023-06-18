@@ -24,7 +24,7 @@ class HttpWriterTest {
 
         // 実行
         val httpWriter = HttpWriter(outputStream)
-        val result = httpWriter.writeResponse(response)
+        httpWriter.writeResponse(response)
 
         // 検証
         assertEquals(

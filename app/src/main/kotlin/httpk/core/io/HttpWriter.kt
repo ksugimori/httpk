@@ -14,15 +14,29 @@ class HttpWriter(outputStream: OutputStream) {
     }
 
     fun writeResponse(response: HttpResponse) {
-        writer.print(response.statusLine)
-        writer.print(CRLF)
-        response.headers.forEach { (key, values) ->
-            writer.print("$key: ${values.joinToString(", ")}")
-            writer.print(CRLF)
+        // status line
+        writer.append(statusLine(response)).append(CRLF)
+
+        // headers
+        response.headers.forEach { (headerName, headerValues) ->
+          writer.append(headerLine(headerName, headerValues)).append(CRLF)
         }
+
+        // ヘッダーとボディの区切りの空行
         writer.print(CRLF)
+
+        // body
         writer.print(response.body)
 
         writer.flush()
+    }
+
+    private fun statusLine(response: HttpResponse): String {
+        return "${response.version} ${response.status.code} ${response.status.message}"
+    }
+
+    private fun headerLine(headerName: String, headerValues: List<String>): String {
+        val joinedValue = headerValues.joinToString(", ")
+        return "$headerName: $joinedValue"
     }
 }
