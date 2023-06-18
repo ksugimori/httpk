@@ -6,9 +6,7 @@ data class HttpResponse(
     val headers: HttpHeaders,
     val body: String
 ) {
-    val statusLine: String
-        get() = "${this.version} ${this.status.code} ${this.status.message}"
-    
+
     companion object {
         fun ok(headers: HttpHeaders, body: String): HttpResponse {
             return HttpResponse(
