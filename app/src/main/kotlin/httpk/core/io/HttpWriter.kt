@@ -4,8 +4,6 @@ import httpk.core.message.HttpResponse
 import java.io.OutputStream
 import java.io.PrintWriter
 
-// TODO テスト作成
-
 private const val CRLF = "\r\n"
 
 class HttpWriter(outputStream: OutputStream) {
