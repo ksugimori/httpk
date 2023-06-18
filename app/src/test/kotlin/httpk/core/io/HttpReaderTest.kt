@@ -2,7 +2,9 @@ package httpk.core.io
 
 import httpk.core.message.HttpMethod
 import httpk.core.message.HttpVersion
+import httpk.exception.InvalidHttpMessageException
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -43,6 +45,7 @@ class HttpReaderTest {
         val message = buildString {
             append("GET /foo/bar HTTP/1.1").append(CRLF)
             append("Host: www.example.jp").append(CRLF)
+            append("Accept-Encoding: gzip, deflate, br").append(CRLF)
             append(CRLF)
         }
 
@@ -57,6 +60,26 @@ class HttpReaderTest {
         assertEquals("/foo/bar", result.path)
         assertEquals(HttpVersion.HTTP_1_1, result.version)
         assertEquals(listOf("www.example.jp"), result.headers["Host"])
+        assertEquals(listOf("gzip", "deflate", "br"), result.headers["Accept-Encoding"])
         assertNull(result.body)
+    }
+
+    @Test
+    fun `readRequest - NG - request line のフォーマット不正の場合 InvalidHttpMessageException が投げられること`() {
+        val message = buildString {
+            append("GET HTTP/1.1").append(CRLF) // path が無い
+            append("Host: www.example.jp").append(CRLF)
+            append(CRLF)
+        }
+
+        val inputStream = ByteArrayInputStream(message.toByteArray())
+
+        // 実行
+        assertThrows<InvalidHttpMessageException> {
+            val httpReader = HttpReader(inputStream)
+            httpReader.readRequest()
+        }.also {
+            assertEquals("invalid HTTP message: GET HTTP/1.1", it.message)
+        }
     }
 }
