@@ -1,8 +1,8 @@
-package httpk.util
+package httpk.core.io
 
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-
+import java.io.OutputStream
 
 /**
  * 改行文字（\r\n）まで読み取る。
@@ -33,3 +33,8 @@ fun InputStream.linesSequence(): Sequence<String> = sequence {
         yield(this@linesSequence.readLine())
     }
 }
+
+
+fun InputStream.httpReader() = HttpReader(this)
+
+fun OutputStream.httpWriter() = HttpWriter(this)
