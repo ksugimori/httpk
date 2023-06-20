@@ -1,24 +1,36 @@
 package httpk.core.message
 
 class HttpHeaders(
-    private val headers: MutableMap<String, List<String>> = mutableMapOf()
+    private val headers: MutableMap<String, MutableList<String>> = mutableMapOf()
 ) : Map<String, List<String>> by headers {
     constructor(builderAction: HttpHeaders.() -> Unit) : this() {
         builderAction()
     }
 
-    val contentLength: Int
-        get() = headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
-
-    fun add(headerName: String, headerValue: Any) {
-        headers[headerName] = listOf(headerValue.toString())
+    fun add(headerName: String, headerValue: String) {
+        val list = headers.getOrPut(headerName) { mutableListOf() }
+        list.add(headerValue)
     }
 
     fun addAll(headerName: String, headerValues: List<String>) {
-        headers[headerName] = headerValues
+        val list = headers.getOrPut(headerName) { mutableListOf() }
+        list.addAll(headerValues)
     }
 
-    override fun toString(): String {
-        return headers.toString()
-    }
+    var contentType: String?
+        get() {
+            return headers["Content-Type"]?.firstOrNull()
+        }
+        set(value) {
+            if (value.isNullOrBlank()) return
+            add("Content-Type", value)
+        }
+
+    var contentLength: Int
+        get() {
+            return headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
+        }
+        set(value) {
+            add("Content-Length", value.toString())
+        }
 }

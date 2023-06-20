@@ -19,8 +19,8 @@ class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
 
         // TODO MIME types
         val headers = HttpHeaders()
-        headers.add("Content-Type", "text/html")
-        headers.add("Content-Length", body.size)
+        headers.contentType = "text/html"
+        headers.contentLength = body.size
 
         return HttpResponse.ok(headers, body.decodeToString())
     }

@@ -1,14 +1,12 @@
 package httpk.core.io
 
-import httpk.core.message.*
+import httpk.core.message.HttpHeaders
+import httpk.core.message.HttpMethod
+import httpk.core.message.HttpRequest
+import httpk.core.message.HttpVersion
 import httpk.core.regex.groupValue
 import httpk.exception.InvalidHttpMessageException
 import java.io.InputStream
-
-private val REQUEST_LINE_REGEX =
-    """^(?<method>[A-Z]+) (?<path>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$""".toRegex(RegexOption.IGNORE_CASE)
-private val HEADER_LINE_REGEX =
-    """^(?<key>[A-Z-]+): +(?<value>.*)$""".toRegex(RegexOption.IGNORE_CASE)
 
 class HttpReader(private val inputStream: InputStream) {
     fun readRequest(): HttpRequest {
@@ -39,21 +37,32 @@ class HttpReader(private val inputStream: InputStream) {
     }
 
     private fun parseRequestLine(line: String): Triple<HttpMethod, String, HttpVersion> {
-        return REQUEST_LINE_REGEX.matchEntire(line)?.let {
-            val method = HttpMethod.from(it.groupValue("method"))
-            val path = it.groupValue("path")
-            val version = HttpVersion.from(it.groupValue("version"))
-            Triple(method, path, version)
-        } ?: throw InvalidHttpMessageException(line)
+        return REQUEST_LINE_REGEX.matchEntire(line)
+            ?.let {
+                Triple(
+                    HttpMethod.from(it.groupValue("method")),
+                    it.groupValue("path"),
+                    HttpVersion.from(it.groupValue("version"))
+                )
+            }
+            ?: throw InvalidHttpMessageException(line)
     }
 
     private fun parseHeaderLine(line: String): Pair<String, List<String>> {
         return HEADER_LINE_REGEX.matchEntire(line)
-            ?.let { Pair(it.groupValue("key"), splitByComma(it.groupValue("value"))) }
+            ?.let {
+                Pair(
+                    it.groupValue("key"),
+                    it.groupValue("value").split(HEADER_VALUE_DELIMITER_REGEX)
+                )
+            }
             ?: throw InvalidHttpMessageException("invalid header \"$line\"")
     }
 
-    // TODO もしかするとこれ不要？
-    private fun splitByComma(value: String): List<String> = value.split(", *".toRegex())
-
+    companion object {
+        private val REQUEST_LINE_REGEX =
+            "^(?<method>[A-Z]+) (?<path>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$".toRegex(RegexOption.IGNORE_CASE)
+        private val HEADER_LINE_REGEX = "^(?<key>[A-Z-]+): +(?<value>.*)$".toRegex(RegexOption.IGNORE_CASE)
+        private val HEADER_VALUE_DELIMITER_REGEX = ", *".toRegex()
+    }
 }
