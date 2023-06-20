@@ -8,7 +8,7 @@ class HttpHeadersTest {
     @Test
     fun `constructor - OK - `() {
         val result = HttpHeaders {
-            add("Hoge", 100)
+            add("Hoge", "100")
             addAll("Fuga", listOf("200", "300"))
         }
 

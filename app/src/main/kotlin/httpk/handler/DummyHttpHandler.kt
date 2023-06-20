@@ -16,7 +16,7 @@ class DummyHttpHandler : HttpHandler {
 
         val responseHeaders = HttpHeaders()
         responseHeaders.add("Content-Type", "text/html")
-        responseHeaders.add("Content-Length", responseBody.toByteArray().size)
+        responseHeaders.contentLength = responseBody.toByteArray().size
 
         return HttpResponse(
             version = HttpVersion.HTTP_1_1,
