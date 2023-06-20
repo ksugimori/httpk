@@ -1,7 +1,6 @@
 package httpk.core.io
 
-import httpk.core.message.HttpMethod
-import httpk.core.message.HttpVersion
+import httpk.core.message.*
 import httpk.exception.InvalidHttpMessageException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,14 +30,19 @@ class HttpReaderTest {
         val result = httpReader.readRequest()
 
         // 検証
-        assertEquals(HttpMethod.POST, result.method)
-        assertEquals("/hoge", result.path)
-        assertEquals(HttpVersion.HTTP_1_1, result.version)
-        // TODO HttpHeaders#equals メソッド作成したい
-        assertEquals(listOf("www.example.com"), result.headers["Host"])
-        assertEquals(listOf("application/json"), result.headers["Content-Type"])
-        assertEquals(listOf("16"), result.headers["Content-Length"])
-        assertEquals("{\"name\": \"test\"}", result.bodyAsString)
+        val expected = HttpRequest(
+            method = HttpMethod.POST,
+            path = "/hoge",
+            version = HttpVersion.HTTP_1_1,
+            headers = HttpHeaders {
+                add("Host", "www.example.com")
+                add("Content-Type", "application/json")
+                add("Content-Length", "16")
+            },
+            body = "{\"name\": \"test\"}".toByteArray()
+        )
+
+        assertEquals(expected, result)
     }
 
     @Test
@@ -57,12 +61,18 @@ class HttpReaderTest {
         val result = httpReader.readRequest()
 
         // 検証
-        assertEquals(HttpMethod.GET, result.method)
-        assertEquals("/foo/bar", result.path)
-        assertEquals(HttpVersion.HTTP_1_1, result.version)
-        assertEquals(listOf("www.example.jp"), result.headers["Host"])
-        assertEquals(listOf("gzip", "deflate", "br"), result.headers["Accept-Encoding"])
-        assertContentEquals(ByteArray(0), result.body)
+        val expected = HttpRequest(
+            method = HttpMethod.GET,
+            path = "/foo/bar",
+            version = HttpVersion.HTTP_1_1,
+            headers = HttpHeaders {
+                add("Host", "www.example.jp")
+                addAll("Accept-Encoding", listOf("gzip", "deflate", "br"))
+            },
+            body = ByteArray(0)
+        )
+
+        assertEquals(expected, result)
     }
 
     @Test
