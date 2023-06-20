@@ -20,9 +20,9 @@ class HttpReader(private val inputStream: InputStream) {
             .forEach { (name, values) -> headers.addAll(name, values) }
 
         val body = if (headers.contentLength > 0) {
-            String(inputStream.readNBytes(headers.contentLength))
+            inputStream.readNBytes(headers.contentLength)
         } else {
-            null
+            ByteArray(0)
         }
 
         return HttpRequest(

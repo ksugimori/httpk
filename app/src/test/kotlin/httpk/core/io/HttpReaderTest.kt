@@ -6,6 +6,7 @@ import httpk.exception.InvalidHttpMessageException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayInputStream
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -37,7 +38,7 @@ class HttpReaderTest {
         assertEquals(listOf("www.example.com"), result.headers["Host"])
         assertEquals(listOf("application/json"), result.headers["Content-Type"])
         assertEquals(listOf("16"), result.headers["Content-Length"])
-        assertEquals("{\"name\": \"test\"}", result.body)
+        assertEquals("{\"name\": \"test\"}", result.bodyAsString)
     }
 
     @Test
@@ -61,7 +62,7 @@ class HttpReaderTest {
         assertEquals(HttpVersion.HTTP_1_1, result.version)
         assertEquals(listOf("www.example.jp"), result.headers["Host"])
         assertEquals(listOf("gzip", "deflate", "br"), result.headers["Accept-Encoding"])
-        assertNull(result.body)
+        assertContentEquals(ByteArray(0), result.body)
     }
 
     @Test
