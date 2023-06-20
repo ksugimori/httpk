@@ -16,10 +16,8 @@ class HttpReader(private val inputStream: InputStream) {
         val headers = HttpHeaders()
         inputStream.linesSequence()
             .takeWhile { it.isNotBlank() }
-            .forEach {
-                val (name, values) = parseFieldLine(it)
-                headers.addAll(name, values)
-            }
+            .map { parseFieldLine(it) }
+            .forEach { (name, values) -> headers.addAll(name, values) }
 
         val body = if (headers.contentLength > 0) {
             String(inputStream.readNBytes(headers.contentLength))
