@@ -17,7 +17,7 @@ class HttpReader(private val inputStream: InputStream) {
         inputStream.linesSequence()
             .takeWhile { it.isNotBlank() }
             .forEach {
-                val (name, values) = parseHeaderLine(it)
+                val (name, values) = parseFieldLine(it)
                 headers.addAll(name, values)
             }
 
@@ -48,11 +48,11 @@ class HttpReader(private val inputStream: InputStream) {
             ?: throw InvalidHttpMessageException(line)
     }
 
-    private fun parseHeaderLine(line: String): Pair<String, List<String>> {
+    private fun parseFieldLine(line: String): Pair<String, List<String>> {
         return HEADER_LINE_REGEX.matchEntire(line)
             ?.let {
                 Pair(
-                    it.groupValue("key"),
+                    it.groupValue("name"),
                     it.groupValue("value").split(HEADER_VALUE_DELIMITER_REGEX)
                 )
             }
@@ -62,7 +62,7 @@ class HttpReader(private val inputStream: InputStream) {
     companion object {
         private val REQUEST_LINE_REGEX =
             "^(?<method>[A-Z]+) (?<path>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$".toRegex(RegexOption.IGNORE_CASE)
-        private val HEADER_LINE_REGEX = "^(?<key>[A-Z-]+): +(?<value>.*)$".toRegex(RegexOption.IGNORE_CASE)
-        private val HEADER_VALUE_DELIMITER_REGEX = ", *".toRegex()
+        private val HEADER_LINE_REGEX = "^(?<name>[A-Z-]+): +(?<value>.*)$".toRegex(RegexOption.IGNORE_CASE)
+        private val HEADER_VALUE_DELIMITER_REGEX = """,\s*""".toRegex()
     }
 }
