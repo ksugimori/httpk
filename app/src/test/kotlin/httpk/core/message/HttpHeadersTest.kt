@@ -3,6 +3,7 @@ package httpk.core.message
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class HttpHeadersTest {
     @Test
@@ -40,7 +41,56 @@ class HttpHeadersTest {
         // この時点では 0
         assertEquals(0, headers.contentLength)
 
-        headers.add("Content-Length", "123")
+        headers.contentLength = 123
         assertEquals(123, headers.contentLength)
+    }
+
+    @Test
+    fun `contentType - OK`() {
+        val headers = HttpHeaders()
+
+        // この時点では未設定
+        assertEquals("", headers.contentType)
+
+        headers.contentType = "application/json"
+        assertEquals("application/json", headers.contentType)
+    }
+
+    @Test
+    fun `equals - OK`() {
+
+        assertEquals(
+            HttpHeaders {
+                addAll("Foo-Bar", listOf("A", "B", "C"))
+                add("Host", "test.example.com")
+            }, HttpHeaders {
+                addAll("Foo-Bar", listOf("A", "B", "C"))
+                add("Host", "test.example.com")
+            }
+        )
+
+        assertNotEquals(
+            HttpHeaders {
+                addAll("Foo-Bar", listOf("A", "B", "C"))
+                add("Host", "test.example.com")
+            }, HttpHeaders {
+                addAll("Foo-Bar", listOf("A", "B", "C"))
+            }
+        )
+    }
+
+    @Test
+    fun `equals - 同じ名前のヘッダーが存在するとき全てが保持されること`() {
+
+        assertEquals(
+            HttpHeaders {
+                addAll("Foo-Bar", listOf("A", "B", "C"))
+            }, HttpHeaders {
+                add("Foo-Bar", "A")
+                add("Foo-Bar", "B")
+                add("Foo-Bar", "C")
+            }
+        )
+
     }
 }
