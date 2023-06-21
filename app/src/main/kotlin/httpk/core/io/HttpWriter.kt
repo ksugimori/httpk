@@ -18,15 +18,15 @@ class HttpWriter(outputStream: OutputStream) {
         writer.append(statusLine(response)).append(CRLF)
 
         // headers
-        response.headers.forEach { (headerName, headerValues) ->
-          writer.append(headerLine(headerName, headerValues)).append(CRLF)
+        response.headers.forEach { (name, values) ->
+          writer.append(fieldLine(name, values)).append(CRLF)
         }
 
         // ヘッダーとボディの区切りの空行
         writer.print(CRLF)
 
         // body
-        writer.print(response.body)
+        writer.print(response.body.decodeToString()) // TODO MIME types による分岐
 
         writer.flush()
     }
@@ -35,8 +35,7 @@ class HttpWriter(outputStream: OutputStream) {
         return "${response.version} ${response.status.code} ${response.status.message}"
     }
 
-    private fun headerLine(headerName: String, headerValues: List<String>): String {
-        val joinedValue = headerValues.joinToString(", ")
-        return "$headerName: $joinedValue"
+    private fun fieldLine(name: String, values: List<String>): String {
+        return "$name: ${values.joinToString(", ")}"
     }
 }

@@ -46,7 +46,7 @@ class WorkerTest {
                         add("Content-Type", "application/json")
                         add("Content-Length", "26")
                     },
-                    body = "{\"id\": 99, \"name\": \"test\"}",
+                    body = "{\"id\": 99, \"name\": \"test\"}".toByteArray(),
                 )
             }
         }

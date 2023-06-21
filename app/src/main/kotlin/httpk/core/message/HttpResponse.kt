@@ -4,11 +4,11 @@ data class HttpResponse(
     val version: HttpVersion,
     val status: HttpStatus,
     val headers: HttpHeaders,
-    val body: String
+    val body: ByteArray
 ) {
 
     companion object {
-        fun ok(headers: HttpHeaders, body: String): HttpResponse {
+        fun ok(headers: HttpHeaders, body: ByteArray): HttpResponse {
             return HttpResponse(
                 version = HttpVersion.HTTP_1_1,
                 status = HttpStatus.OK,
@@ -17,7 +17,7 @@ data class HttpResponse(
             )
         }
 
-        fun notFound(headers: HttpHeaders, body: String): HttpResponse { 
+        fun notFound(headers: HttpHeaders, body: ByteArray): HttpResponse {
             return HttpResponse(
                 version = HttpVersion.HTTP_1_1,
                 status = HttpStatus.NOT_FOUND,
@@ -25,5 +25,25 @@ data class HttpResponse(
                 body = body
             )
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as HttpResponse
+
+        if (version != other.version) return false
+        if (status != other.status) return false
+        if (headers != other.headers) return false
+        return body.contentEquals(other.body)
+    }
+
+    override fun hashCode(): Int {
+        var result = version.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + headers.hashCode()
+        result = 31 * result + body.contentHashCode()
+        return result
     }
 }
