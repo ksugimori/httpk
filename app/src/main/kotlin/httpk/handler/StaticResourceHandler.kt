@@ -14,7 +14,12 @@ class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
         val body = try {
             Files.readAllBytes(documentRoot.resolve(relativePath))
         } catch (ex: IOException) {
-            return HttpResponse.notFound(HttpHeaders(), "")
+            val body = "<!DOCTYPE html><html><body><h1>NOT FOUND</h1></body></html>".toByteArray()
+            val headers = HttpHeaders {
+                contentType = "text/html"
+                contentLength = body.size
+            }
+            return HttpResponse.notFound(headers, body)
         }
 
         // TODO MIME types
@@ -22,6 +27,6 @@ class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
         headers.contentType = "text/html"
         headers.contentLength = body.size
 
-        return HttpResponse.ok(headers, body.decodeToString())
+        return HttpResponse.ok(headers, body)
     }
 }

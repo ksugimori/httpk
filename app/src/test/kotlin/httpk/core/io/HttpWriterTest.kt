@@ -19,7 +19,7 @@ class HttpWriterTest {
                 add("Content-Type", "text/plain")
                 add("Content-Length", "5")
             },
-            body = "Hello"
+            body = "Hello".toByteArray()
         )
 
         // 実行

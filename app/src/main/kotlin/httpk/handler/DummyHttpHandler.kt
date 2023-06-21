@@ -12,11 +12,11 @@ class DummyHttpHandler : HttpHandler {
                     Request: ${request.method} ${request.path}
                   </body>
                 </html>
-            """.trimIndent()
+            """.trimIndent().toByteArray()
 
         val responseHeaders = HttpHeaders()
         responseHeaders.add("Content-Type", "text/html")
-        responseHeaders.contentLength = responseBody.toByteArray().size
+        responseHeaders.contentLength = responseBody.size
 
         return HttpResponse(
             version = HttpVersion.HTTP_1_1,
