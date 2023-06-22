@@ -33,7 +33,7 @@ class HttpHeaders(
             return headers["Content-Type"]?.first().orEmpty()
         }
         set(value) {
-            if (value.isNullOrBlank()) return
+            if (value.isBlank()) return
             add("Content-Type", value)
         }
 

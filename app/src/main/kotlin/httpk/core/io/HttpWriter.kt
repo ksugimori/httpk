@@ -21,11 +21,11 @@ class HttpWriter(private val outputStream: OutputStream) {
         writer.print(CRLF)
 
         // headers
-        response.headers.forEach { (fieldName, values) ->
+        for ((fieldName, fieldValues) in response.headers) {
             writer.print(fieldName)
             writer.print(":")
             writer.print(SP)
-            writer.print(values.joinToString(", "))
+            writer.print(fieldValues.joinToString(", "))
             writer.print(CRLF)
         }
 
