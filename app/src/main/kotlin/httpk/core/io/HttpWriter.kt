@@ -4,6 +4,7 @@ import httpk.core.message.HttpResponse
 import java.io.OutputStream
 import java.io.PrintWriter
 
+private const val SP = " "
 private const val CRLF = "\r\n"
 
 class HttpWriter(private val outputStream: OutputStream) {
@@ -12,11 +13,20 @@ class HttpWriter(private val outputStream: OutputStream) {
         val writer = PrintWriter(outputStream)
 
         // status line
-        writer.append(statusLine(response)).append(CRLF)
+        writer.print(response.version)
+        writer.print(SP)
+        writer.print(response.status.code)
+        writer.print(SP)
+        writer.print(response.status.message)
+        writer.print(CRLF)
 
         // headers
-        response.headers.forEach { (name, values) ->
-            writer.append(fieldLine(name, values)).append(CRLF)
+        response.headers.forEach { (fieldName, values) ->
+            writer.print(fieldName)
+            writer.print(":")
+            writer.print(SP)
+            writer.print(values.joinToString(", "))
+            writer.print(CRLF)
         }
 
         // ヘッダーとボディの区切りの空行
@@ -26,13 +36,5 @@ class HttpWriter(private val outputStream: OutputStream) {
 
         // body
         outputStream.write(response.body)
-    }
-
-    private fun statusLine(response: HttpResponse): String {
-        return "${response.version} ${response.status.code} ${response.status.message}"
-    }
-
-    private fun fieldLine(name: String, values: List<String>): String {
-        return "$name: ${values.joinToString(", ")}"
     }
 }
