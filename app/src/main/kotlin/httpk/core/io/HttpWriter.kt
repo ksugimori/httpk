@@ -6,29 +6,26 @@ import java.io.PrintWriter
 
 private const val CRLF = "\r\n"
 
-class HttpWriter(outputStream: OutputStream) {
-    private val writer: PrintWriter
-
-    init {
-        writer = PrintWriter(outputStream.bufferedWriter())
-    }
+class HttpWriter(private val outputStream: OutputStream) {
 
     fun writeResponse(response: HttpResponse) {
+        val writer = PrintWriter(outputStream)
+
         // status line
         writer.append(statusLine(response)).append(CRLF)
 
         // headers
         response.headers.forEach { (name, values) ->
-          writer.append(fieldLine(name, values)).append(CRLF)
+            writer.append(fieldLine(name, values)).append(CRLF)
         }
 
         // ヘッダーとボディの区切りの空行
         writer.print(CRLF)
 
-        // body
-        writer.print(response.body.decodeToString()) // TODO MIME types による分岐
-
         writer.flush()
+
+        // body
+        outputStream.write(response.body)
     }
 
     private fun statusLine(response: HttpResponse): String {
