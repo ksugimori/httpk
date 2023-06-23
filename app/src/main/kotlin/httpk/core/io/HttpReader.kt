@@ -60,8 +60,8 @@ class HttpReader(private val inputStream: InputStream) {
     }
 
     companion object {
-        private val REQUEST_LINE_REGEX = """^(?<method>[A-Z]+) (?<target>\S+) (?<version>[A-Z0-9/.]+)$""".toRegex()
-        private val HEADER_LINE_REGEX = """^(?<name>[A-Za-z-]+):\s?(?<value>.*)\s?$""".toRegex()
+        private val REQUEST_LINE_REGEX = """^([A-Z]+) (\S+) ([A-Z0-9/.]+)$""".toRegex()
+        private val HEADER_LINE_REGEX = """^([A-Za-z-]+):\s?(.*)\s?$""".toRegex()
         private val HEADER_VALUE_DELIMITER_REGEX = """,\s*""".toRegex()
     }
 }
