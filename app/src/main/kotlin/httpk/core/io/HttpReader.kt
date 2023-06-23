@@ -4,7 +4,6 @@ import httpk.core.message.HttpHeaders
 import httpk.core.message.HttpMethod
 import httpk.core.message.HttpRequest
 import httpk.core.message.HttpVersion
-import httpk.core.regex.groupValue
 import httpk.exception.InvalidHttpMessageException
 import java.io.InputStream
 import java.net.URI
@@ -37,25 +36,27 @@ class HttpReader(private val inputStream: InputStream) {
 
     private fun parseRequestLine(line: String): Triple<HttpMethod, URI, HttpVersion> {
         return REQUEST_LINE_REGEX.matchEntire(line)
-            ?.let {
+            ?.destructured
+            ?.let { (method, target, version) ->
                 Triple(
-                    HttpMethod.from(it.groupValue("method")),
-                    URI.create(it.groupValue("target")),
-                    HttpVersion.from(it.groupValue("version"))
+                    HttpMethod.from(method),
+                    URI.create(target),
+                    HttpVersion.from(version)
                 )
             }
-            ?: throw InvalidHttpMessageException(line)
+            ?: throw InvalidHttpMessageException("invalid request line: $line")
     }
 
     private fun parseFieldLine(line: String): Pair<String, List<String>> {
         return HEADER_LINE_REGEX.matchEntire(line)
-            ?.let {
+            ?.destructured
+            ?.let { (name, value) ->
                 Pair(
-                    it.groupValue("name"),
-                    it.groupValue("value").split(HEADER_VALUE_DELIMITER_REGEX)
+                    name,
+                    value.split(HEADER_VALUE_DELIMITER_REGEX)
                 )
             }
-            ?: throw InvalidHttpMessageException("invalid header \"$line\"")
+            ?: throw InvalidHttpMessageException("invalid field line: $line")
     }
 
     companion object {

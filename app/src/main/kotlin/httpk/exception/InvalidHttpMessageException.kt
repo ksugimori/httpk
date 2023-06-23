@@ -1,3 +1,3 @@
 package httpk.exception
 
-class InvalidHttpMessageException(value: String) : RuntimeException("invalid HTTP message: $value")
+class InvalidHttpMessageException(override val message: String?) : RuntimeException(message)
