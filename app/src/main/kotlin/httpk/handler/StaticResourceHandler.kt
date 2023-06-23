@@ -6,11 +6,15 @@ import httpk.core.message.HttpResponse
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 
 class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
     override fun handle(request: HttpRequest): HttpResponse {
-        val path = Path.of(documentRoot.pathString, request.target.path)
+        var path = Path.of(documentRoot.pathString, request.target.path)
+        if (path.isDirectory()) {
+            path = path.resolve("index.html")
+        }
 
         val body = try {
             Files.readAllBytes(path)
