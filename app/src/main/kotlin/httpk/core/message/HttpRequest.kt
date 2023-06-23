@@ -1,15 +1,21 @@
 package httpk.core.message
 
+/**
+ * HTTP リクエスト
+ *
+ * @param method HTTP メソッド
+ * @param target ターゲット
+ * @param version HTTP バージョン
+ * @param headers HTTP ヘッダー
+ * @param body リクエストボディ
+ */
 data class HttpRequest(
     val method: HttpMethod,
-    val path: String,
+    val target: String,
     val version: HttpVersion,
     val headers: HttpHeaders,
     val body: ByteArray
 ) {
-    val bodyAsString: String
-        get() = body.decodeToString().orEmpty()
-
     // ---------------------------------------------------
     // data class で自動的に作られる equals は配列の参照しか比較しない
     // 配列の要素を比較するためにオーバーライド
@@ -22,7 +28,7 @@ data class HttpRequest(
         other as HttpRequest
 
         if (method != other.method) return false
-        if (path != other.path) return false
+        if (target != other.target) return false
         if (version != other.version) return false
         if (headers != other.headers) return false
         return body.contentEquals(other.body)
@@ -30,7 +36,7 @@ data class HttpRequest(
 
     override fun hashCode(): Int {
         var result = method.hashCode()
-        result = 31 * result + path.hashCode()
+        result = 31 * result + target.hashCode()
         result = 31 * result + version.hashCode()
         result = 31 * result + headers.hashCode()
         result = 31 * result + body.contentHashCode()

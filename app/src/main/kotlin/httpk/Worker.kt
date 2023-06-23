@@ -14,7 +14,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         val response = httpHandler.handle(request)
         socket.getOutputStream().httpWriter().writeResponse(response)
 
-        log("\"${request.method} ${request.path} ${request.version}\" : ${response.status.code}")
+        log("\"${request.method} ${request.target} ${request.version}\" : ${response.status.code}")
     }
 
 }

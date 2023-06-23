@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
     override fun handle(request: HttpRequest): HttpResponse {
-        val relativePath = Path.of(request.path.removePrefix("/"))
+        val relativePath = Path.of(request.target.removePrefix("/"))
 
         val body = try {
             Files.readAllBytes(documentRoot.resolve(relativePath))
