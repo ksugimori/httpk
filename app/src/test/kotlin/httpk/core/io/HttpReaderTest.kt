@@ -89,7 +89,7 @@ class HttpReaderTest {
             val httpReader = HttpReader(inputStream)
             httpReader.readRequest()
         }.also {
-            assertEquals("invalid HTTP message: GET HTTP/1.1", it.message)
+            assertEquals("invalid request line: GET HTTP/1.1", it.message)
         }
     }
 }
