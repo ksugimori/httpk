@@ -7,6 +7,7 @@ import httpk.core.message.HttpVersion
 import httpk.core.regex.groupValue
 import httpk.exception.InvalidHttpMessageException
 import java.io.InputStream
+import java.net.URI
 
 class HttpReader(private val inputStream: InputStream) {
     fun readRequest(): HttpRequest {
@@ -34,12 +35,12 @@ class HttpReader(private val inputStream: InputStream) {
         )
     }
 
-    private fun parseRequestLine(line: String): Triple<HttpMethod, String, HttpVersion> {
+    private fun parseRequestLine(line: String): Triple<HttpMethod, URI, HttpVersion> {
         return REQUEST_LINE_REGEX.matchEntire(line)
             ?.let {
                 Triple(
                     HttpMethod.from(it.groupValue("method")),
-                    it.groupValue("target"),
+                    URI.create(it.groupValue("target")),
                     HttpVersion.from(it.groupValue("version"))
                 )
             }
@@ -58,9 +59,8 @@ class HttpReader(private val inputStream: InputStream) {
     }
 
     companion object {
-        private val REQUEST_LINE_REGEX =
-            "^(?<method>[A-Z]+) (?<target>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$".toRegex(RegexOption.IGNORE_CASE)
-        private val HEADER_LINE_REGEX = "^(?<name>[A-Z-]+): +(?<value>.*)$".toRegex(RegexOption.IGNORE_CASE)
+        private val REQUEST_LINE_REGEX = """^(?<method>[A-Z]+) (?<target>\S+) (?<version>[A-Z0-9/.]+)$""".toRegex()
+        private val HEADER_LINE_REGEX = """^(?<name>[A-Za-z-]+):\s?(?<value>.*)\s?$""".toRegex()
         private val HEADER_VALUE_DELIMITER_REGEX = """,\s*""".toRegex()
     }
 }

@@ -6,13 +6,14 @@ import httpk.core.message.HttpResponse
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.pathString
 
 class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
     override fun handle(request: HttpRequest): HttpResponse {
-        val relativePath = Path.of(request.target.removePrefix("/"))
+        val path = Path.of(documentRoot.pathString, request.target.path)
 
         val body = try {
-            Files.readAllBytes(documentRoot.resolve(relativePath))
+            Files.readAllBytes(path)
         } catch (ex: IOException) {
             val body = "<!DOCTYPE html><html><body><h1>NOT FOUND</h1></body></html>".toByteArray()
             val headers = HttpHeaders {

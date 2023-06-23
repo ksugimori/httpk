@@ -1,5 +1,7 @@
 package httpk.core.message
 
+import java.net.URI
+
 /**
  * HTTP リクエスト
  *
@@ -11,7 +13,7 @@ package httpk.core.message
  */
 data class HttpRequest(
     val method: HttpMethod,
-    val target: String,
+    val target: URI,
     val version: HttpVersion,
     val headers: HttpHeaders,
     val body: ByteArray
