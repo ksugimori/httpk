@@ -5,9 +5,7 @@ import httpk.exception.InvalidHttpMessageException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayInputStream
-import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 private const val CRLF = "\r\n"
 
@@ -32,7 +30,7 @@ class HttpReaderTest {
         // 検証
         val expected = HttpRequest(
             method = HttpMethod.POST,
-            path = "/hoge",
+            target = "/hoge",
             version = HttpVersion.HTTP_1_1,
             headers = HttpHeaders {
                 add("Host", "www.example.com")
@@ -63,7 +61,7 @@ class HttpReaderTest {
         // 検証
         val expected = HttpRequest(
             method = HttpMethod.GET,
-            path = "/foo/bar",
+            target = "/foo/bar",
             version = HttpVersion.HTTP_1_1,
             headers = HttpHeaders {
                 add("Host", "www.example.jp")
@@ -78,7 +76,7 @@ class HttpReaderTest {
     @Test
     fun `readRequest - NG - request line のフォーマット不正の場合 InvalidHttpMessageException が投げられること`() {
         val message = buildString {
-            append("GET HTTP/1.1").append(CRLF) // path が無い
+            append("GET HTTP/1.1").append(CRLF) // target が無い
             append("Host: www.example.jp").append(CRLF)
             append(CRLF)
         }

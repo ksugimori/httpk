@@ -11,7 +11,7 @@ import java.io.InputStream
 class HttpReader(private val inputStream: InputStream) {
     fun readRequest(): HttpRequest {
 
-        val (method, path, version) = parseRequestLine(inputStream.readLine())
+        val (method, target, version) = parseRequestLine(inputStream.readLine())
 
         val headers = HttpHeaders()
         inputStream.linesSequence()
@@ -27,7 +27,7 @@ class HttpReader(private val inputStream: InputStream) {
 
         return HttpRequest(
             method = method,
-            path = path,
+            target = target,
             version = version,
             headers = headers,
             body = body
@@ -39,7 +39,7 @@ class HttpReader(private val inputStream: InputStream) {
             ?.let {
                 Triple(
                     HttpMethod.from(it.groupValue("method")),
-                    it.groupValue("path"),
+                    it.groupValue("target"),
                     HttpVersion.from(it.groupValue("version"))
                 )
             }
@@ -59,7 +59,7 @@ class HttpReader(private val inputStream: InputStream) {
 
     companion object {
         private val REQUEST_LINE_REGEX =
-            "^(?<method>[A-Z]+) (?<path>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$".toRegex(RegexOption.IGNORE_CASE)
+            "^(?<method>[A-Z]+) (?<target>[A-Z0-9/.~_-]+) (?<version>[A-Z0-9/.]+)$".toRegex(RegexOption.IGNORE_CASE)
         private val HEADER_LINE_REGEX = "^(?<name>[A-Z-]+): +(?<value>.*)$".toRegex(RegexOption.IGNORE_CASE)
         private val HEADER_VALUE_DELIMITER_REGEX = """,\s*""".toRegex()
     }

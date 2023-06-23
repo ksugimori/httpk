@@ -9,7 +9,7 @@ class DummyHttpHandler : HttpHandler {
                 <html>
                   <body>
                     Hello World!
-                    Request: ${request.method} ${request.path}
+                    Request: ${request.method} ${request.target}
                   </body>
                 </html>
             """.trimIndent().toByteArray()
