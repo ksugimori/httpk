@@ -1,47 +1,83 @@
 package httpk.core.message
 
+/**
+ * HTTP Headers
+ *
+ *
+ * @param nameToValues 内部的に情報を保持するマップ
+ */
 class HttpHeaders(
-    private val headers: MutableMap<String, MutableList<String>> = mutableMapOf()
-) : Map<String, List<String>> by headers {
+    private val nameToValues: MutableMap<String, MutableList<String>> = mutableMapOf()
+) : Map<String, List<String>> by nameToValues {
     constructor(builderAction: HttpHeaders.() -> Unit) : this() {
         builderAction()
     }
 
-    override fun equals(other: Any?): Boolean {
-        return when (other) {
-            is HttpHeaders -> this.headers == other.headers
-            else -> false
-        }
-    }
+    // --------------------------------------------------------------------------
+    // computed property
+    //   よく使うヘッダーは直接更新しなくても済むようにラップしたプロパティを定義
+    // --------------------------------------------------------------------------
 
-    override fun toString(): String {
-        return headers.map { "${it.key}:${it.value}" }.joinToString(separator = ", ", prefix = "{", postfix = "}")
-    }
-
-    fun add(headerName: String, headerValue: String) {
-        val list = headers.getOrPut(headerName) { mutableListOf() }
-        list.add(headerValue)
-    }
-
-    fun addAll(headerName: String, headerValues: List<String>) {
-        val list = headers.getOrPut(headerName) { mutableListOf() }
-        list.addAll(headerValues)
-    }
-
+    /**
+     * Content-Type
+     */
     var contentType: String
         get() {
-            return headers["Content-Type"]?.first().orEmpty()
+            return nameToValues["Content-Type"]?.first().orEmpty()
         }
         set(value) {
             if (value.isBlank()) return
             add("Content-Type", value)
         }
 
+    /**
+     * Content-Length
+     */
     var contentLength: Int
         get() {
-            return headers["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
+            return nameToValues["Content-Length"]?.firstOrNull()?.toIntOrNull() ?: 0
         }
         set(value) {
             add("Content-Length", value.toString())
         }
+
+    // --------------------------------------------------------------------------
+    // method
+    // --------------------------------------------------------------------------
+
+    /**
+     * ヘッダーを追加します。
+     *
+     * すでに存在するヘッダーの場合、リストの最後尾に値が追加されます。
+     * @param headerName ヘッダー名
+     * @param headerValue ヘッダーの値
+     */
+    fun add(headerName: String, headerValue: String) {
+        val list = nameToValues.getOrPut(headerName) { mutableListOf() }
+        list.add(headerValue)
+    }
+
+    /**
+     * ヘッダーの値をまとめて追加します。
+     *
+     * すでに存在するヘッダーの場合、リストの最後尾に値がまとめて追加されます。
+     * @param headerName ヘッダー名
+     * @param headerValues ヘッダーの値
+     */
+    fun addAll(headerName: String, headerValues: List<String>) {
+        val list = nameToValues.getOrPut(headerName) { mutableListOf() }
+        list.addAll(headerValues)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return if (other is HttpHeaders) this.nameToValues == other.nameToValues else false
+    }
+
+    override fun hashCode(): Int {
+        return nameToValues.hashCode()
+    }
+
+    override fun toString(): String {
+        return nameToValues.map { "${it.key}:${it.value}" }.joinToString(separator = ", ", prefix = "{", postfix = "}")
+    }
 }
