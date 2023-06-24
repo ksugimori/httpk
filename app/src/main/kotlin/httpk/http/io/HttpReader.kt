@@ -1,10 +1,10 @@
 package httpk.http.io
 
+import httpk.exception.InvalidHttpMessageException
 import httpk.http.semantics.HttpHeaders
 import httpk.http.semantics.HttpMethod
 import httpk.http.semantics.HttpRequest
 import httpk.http.semantics.HttpVersion
-import httpk.exception.InvalidHttpMessageException
 import httpk.util.linesSequence
 import httpk.util.readLine
 import java.io.InputStream

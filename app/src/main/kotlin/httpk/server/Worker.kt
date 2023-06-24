@@ -1,19 +1,49 @@
 package httpk.server
 
+import httpk.exception.InvalidHttpMessageException
+import httpk.exception.ResourceNotFoundException
 import httpk.handler.DummyHttpHandler
 import httpk.handler.HttpHandler
+import httpk.http.io.HttpReader
+import httpk.http.io.HttpWriter
+import httpk.http.semantics.HttpHeaders
+import httpk.http.semantics.HttpResponse
+import httpk.http.semantics.HttpStatus
 import httpk.util.consoleLog
-import httpk.util.httpReader
-import httpk.util.httpWriter
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.Socket
 
+private fun InputStream.httpReader() = HttpReader(this)
+private fun OutputStream.httpWriter() = HttpWriter(this)
 
 class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
 
     fun execute(socket: Socket) {
-        val request = socket.getInputStream().httpReader().readRequest()
-        val response = httpHandler.handle(request)
-        socket.getOutputStream().httpWriter().writeResponse(response)
+        val httpReader = socket.getInputStream().httpReader()
+        val httpWriter = socket.getOutputStream().httpWriter()
+
+        val request = try {
+            httpReader.readRequest()
+        } catch (ex: InvalidHttpMessageException) {
+            httpWriter.writeResponse(HttpResponse(status = HttpStatus.BAD_REQUEST))
+            consoleLog("\"cannot parse request\" : 400 : ${ex.message}")
+            return
+        }
+
+        val response = try {
+            httpHandler.handle(request)
+        } catch (ex: ResourceNotFoundException) {
+            val body = "<!DOCTYPE html><html><body><h1>NOT FOUND</h1></body></html>".toByteArray()
+            val headers = HttpHeaders {
+                contentType = "text/html"
+                contentLength = body.size
+            }
+            HttpResponse(status = HttpStatus.NOT_FOUND, headers = headers, body = body)
+        } catch (ex: Exception) {
+            HttpResponse(status = HttpStatus.BAD_REQUEST)
+        }
+        httpWriter.writeResponse(response)
 
         consoleLog("\"${request.method} ${request.target} ${request.version}\" : ${response.status.code}")
     }
