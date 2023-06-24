@@ -8,7 +8,18 @@ import httpk.exception.InvalidHttpMessageException
 import java.io.InputStream
 import java.net.URI
 
+/**
+ * HTTP リクエストを読み込む Reader
+ *
+ * @param inputStream 入力ストリーム
+ */
 class HttpReader(private val inputStream: InputStream) {
+    /**
+     * HTTP リクエストを読み込む。
+     *
+     * @throws InvalidHttpMessageException メッセージが不正なフォーマットである場合
+     * @return HTTP リクエスト
+     */
     fun readRequest(): HttpRequest {
 
         val (method, target, version) = parseRequestLine(inputStream.readLine())
@@ -34,6 +45,12 @@ class HttpReader(private val inputStream: InputStream) {
         )
     }
 
+    /**
+     * Request Line を解析して HTTP メソッド、ターゲット、HTTP バージョンに分解する。
+     *
+     * @param line request line
+     * @return (method, target, version)
+     */
     private fun parseRequestLine(line: String): Triple<HttpMethod, URI, HttpVersion> {
         return REQUEST_LINE_REGEX.matchEntire(line)
             ?.destructured
@@ -47,13 +64,19 @@ class HttpReader(private val inputStream: InputStream) {
             ?: throw InvalidHttpMessageException("invalid request line: $line")
     }
 
+    /**
+     * Field Line を解析して フィールド名、フィールドの値リスト に分解する。
+     *
+     * @param line field line
+     * @return (fieldName, fieldValueList)
+     */
     private fun parseFieldLine(line: String): Pair<String, List<String>> {
-        return HEADER_LINE_REGEX.matchEntire(line)
+        return FIELD_LINE_REGEX.matchEntire(line)
             ?.destructured
             ?.let { (name, value) ->
                 Pair(
                     name,
-                    value.split(HEADER_VALUE_DELIMITER_REGEX)
+                    value.split(COMMA_AND_OPTIONAL_SPACE_REGEX)
                 )
             }
             ?: throw InvalidHttpMessageException("invalid field line: $line")
@@ -61,7 +84,7 @@ class HttpReader(private val inputStream: InputStream) {
 
     companion object {
         private val REQUEST_LINE_REGEX = """^([A-Z]+) (\S+) ([A-Z0-9/.]+)$""".toRegex()
-        private val HEADER_LINE_REGEX = """^([A-Za-z-]+):\s?(.*)\s?$""".toRegex()
-        private val HEADER_VALUE_DELIMITER_REGEX = """,\s*""".toRegex()
+        private val FIELD_LINE_REGEX = """^([A-Za-z-]+):\s?(.*)\s?$""".toRegex()
+        private val COMMA_AND_OPTIONAL_SPACE_REGEX = """,\s*""".toRegex()
     }
 }

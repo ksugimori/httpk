@@ -9,6 +9,11 @@ import java.nio.file.Path
 import kotlin.io.path.isDirectory
 import kotlin.io.path.pathString
 
+/**
+ * 静的コンテンツにアクセスするための HTTP ハンドラ。
+ *
+ * @param documentRoot ドキュメントルート
+ */
 class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
     override fun handle(request: HttpRequest): HttpResponse {
         var path = Path.of(documentRoot.pathString, request.target.path)

@@ -3,7 +3,6 @@ package httpk.core.message
 /**
  * HTTP Headers
  *
- *
  * @param nameToValues 内部的に情報を保持するマップ
  */
 class HttpHeaders(
