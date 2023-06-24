@@ -1,9 +1,9 @@
-package httpk.core.io
+package httpk.http.io
 
-import httpk.core.message.HttpHeaders
-import httpk.core.message.HttpResponse
-import httpk.core.message.HttpStatus
-import httpk.core.message.HttpVersion
+import httpk.http.semantics.HttpHeaders
+import httpk.http.semantics.HttpResponse
+import httpk.http.semantics.HttpStatus
+import httpk.http.semantics.HttpVersion
 import java.io.ByteArrayOutputStream
 import kotlin.test.Test
 import kotlin.test.assertEquals

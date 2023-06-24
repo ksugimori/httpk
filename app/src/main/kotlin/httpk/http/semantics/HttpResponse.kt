@@ -1,4 +1,4 @@
-package httpk.core.message
+package httpk.http.semantics
 
 /**
  * HTTP レスポンス

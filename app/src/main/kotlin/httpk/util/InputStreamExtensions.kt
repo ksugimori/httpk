@@ -1,5 +1,7 @@
-package httpk.core.io
+package httpk.util
 
+import httpk.http.io.HttpReader
+import httpk.http.io.HttpWriter
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream

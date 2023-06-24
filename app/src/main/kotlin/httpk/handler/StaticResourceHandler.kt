@@ -1,8 +1,8 @@
 package httpk.handler
 
-import httpk.core.message.HttpHeaders
-import httpk.core.message.HttpRequest
-import httpk.core.message.HttpResponse
+import httpk.http.semantics.HttpHeaders
+import httpk.http.semantics.HttpRequest
+import httpk.http.semantics.HttpResponse
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path

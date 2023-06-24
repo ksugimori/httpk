@@ -1,10 +1,12 @@
-package httpk.core.io
+package httpk.http.io
 
-import httpk.core.message.HttpHeaders
-import httpk.core.message.HttpMethod
-import httpk.core.message.HttpRequest
-import httpk.core.message.HttpVersion
+import httpk.http.semantics.HttpHeaders
+import httpk.http.semantics.HttpMethod
+import httpk.http.semantics.HttpRequest
+import httpk.http.semantics.HttpVersion
 import httpk.exception.InvalidHttpMessageException
+import httpk.util.linesSequence
+import httpk.util.readLine
 import java.io.InputStream
 import java.net.URI
 
