@@ -1,4 +1,4 @@
-package httpk.core.message
+package httpk.http.semantics
 
 enum class HttpStatus(val code: Int, val message: String) {
     OK(200, "OK"),

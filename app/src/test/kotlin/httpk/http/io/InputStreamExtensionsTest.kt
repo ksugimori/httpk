@@ -1,5 +1,7 @@
-package httpk.core.io
+package httpk.http.io
 
+import httpk.util.linesSequence
+import httpk.util.readLine
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals

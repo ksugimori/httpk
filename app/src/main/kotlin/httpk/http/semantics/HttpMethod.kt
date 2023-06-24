@@ -1,4 +1,4 @@
-package httpk.core.message
+package httpk.http.semantics
 
 enum class HttpMethod {
     GET, POST, PUT, DELETE, HEAD, OPTIONS, PATCH;

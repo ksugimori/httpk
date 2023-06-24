@@ -1,6 +1,6 @@
 package httpk
 
-import httpk.core.message.*
+import httpk.http.semantics.*
 import httpk.handler.HttpHandler
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

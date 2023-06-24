@@ -1,4 +1,4 @@
-package httpk.core.message
+package httpk.http.semantics
 
 import kotlin.test.Test
 import kotlin.test.assertContentEquals

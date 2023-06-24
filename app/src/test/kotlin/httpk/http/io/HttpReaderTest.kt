@@ -1,6 +1,6 @@
-package httpk.core.io
+package httpk.http.io
 
-import httpk.core.message.*
+import httpk.http.semantics.*
 import httpk.exception.InvalidHttpMessageException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

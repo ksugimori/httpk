@@ -1,6 +1,6 @@
-package httpk.core.io
+package httpk.http.io
 
-import httpk.core.message.HttpResponse
+import httpk.http.semantics.HttpResponse
 import java.io.OutputStream
 import java.io.PrintWriter
 

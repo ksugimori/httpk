@@ -1,7 +1,7 @@
 package httpk.handler
 
-import httpk.core.message.HttpRequest
-import httpk.core.message.HttpResponse
+import httpk.http.semantics.HttpRequest
+import httpk.http.semantics.HttpResponse
 
 /**
  * HTTP ハンドラ。

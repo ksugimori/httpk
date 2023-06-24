@@ -1,6 +1,6 @@
 package httpk.handler
 
-import httpk.core.message.*
+import httpk.http.semantics.*
 
 class DummyHttpHandler : HttpHandler {
     override fun handle(request: HttpRequest): HttpResponse {
