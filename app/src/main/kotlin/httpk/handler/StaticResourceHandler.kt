@@ -16,8 +16,8 @@ import kotlin.io.path.pathString
  *
  * @param documentRoot ドキュメントルート
  */
-class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
-    override fun handle(request: HttpRequest): HttpResponse {
+class StaticResourceHandler(private val documentRoot: Path) : HttpHandler() {
+    override fun doHandle(request: HttpRequest): HttpResponse {
         var path = Path.of(documentRoot.pathString, request.target.path)
         if (path.isDirectory()) {
             path = path.resolve("index.html")

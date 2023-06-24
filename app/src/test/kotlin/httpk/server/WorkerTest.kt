@@ -38,8 +38,8 @@ class WorkerTest {
             outputStreamMock = output
         )
 
-        val mockHttpHandler = object : HttpHandler {
-            override fun handle(request: HttpRequest): HttpResponse {
+        val mockHttpHandler = object : HttpHandler() {
+            override fun doHandle(request: HttpRequest): HttpResponse {
                 return HttpResponse(
                     status = HttpStatus.CREATED,
                     version = HttpVersion.HTTP_1_1,

@@ -31,18 +31,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
             return
         }
 
-        val response = try {
-            httpHandler.handle(request)
-        } catch (ex: ResourceNotFoundException) {
-            val body = "<!DOCTYPE html><html><body><h1>NOT FOUND</h1></body></html>".toByteArray()
-            val headers = HttpHeaders {
-                contentType = "text/html"
-                contentLength = body.size
-            }
-            HttpResponse(status = HttpStatus.NOT_FOUND, headers = headers, body = body)
-        } catch (ex: Exception) {
-            HttpResponse(status = HttpStatus.BAD_REQUEST)
-        }
+        val response = httpHandler.handle(request)
         httpWriter.writeResponse(response)
 
         consoleLog("\"${request.method} ${request.target} ${request.version}\" : ${response.status.code}")
