@@ -1,5 +1,7 @@
 package httpk.http.semantics
 
+import httpk.exception.InvalidHttpMessageException
+
 enum class HttpVersion(private val value: String) {
     HTTP_0_9("HTTP/0.9"),
     HTTP_1_1("HTTP/1.1"),
@@ -10,7 +12,8 @@ enum class HttpVersion(private val value: String) {
 
     companion object {
         fun from(value: String): HttpVersion {
-            return values().find { it.value == value }!!
+            return values().find { it.value == value }
+                ?: throw InvalidHttpMessageException("invalid HTTP version: $value")
         }
     }
 }

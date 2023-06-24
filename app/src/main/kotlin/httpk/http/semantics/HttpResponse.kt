@@ -9,10 +9,10 @@ package httpk.http.semantics
  * @param body レスポンスボディ
  */
 data class HttpResponse(
-    val version: HttpVersion,
-    val status: HttpStatus,
-    val headers: HttpHeaders,
-    val body: ByteArray
+    val version: HttpVersion = HttpVersion.HTTP_1_1,
+    val status: HttpStatus = HttpStatus.OK,
+    val headers: HttpHeaders = HttpHeaders(),
+    val body: ByteArray = ByteArray(0),
 ) {
 
     // ---------------------------------------------------
@@ -39,31 +39,4 @@ data class HttpResponse(
         result = 31 * result + body.contentHashCode()
         return result
     }
-
-    companion object {
-        /**
-         * HTTP ステータス 200 のレスポンスを作成する。
-         */
-        fun ok(headers: HttpHeaders, body: ByteArray): HttpResponse {
-            return HttpResponse(
-                version = HttpVersion.HTTP_1_1,
-                status = HttpStatus.OK,
-                headers = headers,
-                body = body
-            )
-        }
-
-        /**
-         * HTTP ステータス 404 のレスポンスを作成する。
-         */
-        fun notFound(headers: HttpHeaders, body: ByteArray): HttpResponse {
-            return HttpResponse(
-                version = HttpVersion.HTTP_1_1,
-                status = HttpStatus.NOT_FOUND,
-                headers = headers,
-                body = body
-            )
-        }
-    }
-
 }

@@ -1,10 +1,13 @@
 package httpk.handler
 
-import httpk.http.semantics.*
+import httpk.http.semantics.HttpHeaders
+import httpk.http.semantics.HttpRequest
+import httpk.http.semantics.HttpResponse
+import httpk.http.semantics.HttpStatus
 
 class DummyHttpHandler : HttpHandler {
     override fun handle(request: HttpRequest): HttpResponse {
-        val responseBody = """
+        val body = """
                 <!DOCTYPE html>
                 <html>
                   <body>
@@ -14,15 +17,10 @@ class DummyHttpHandler : HttpHandler {
                 </html>
             """.trimIndent().toByteArray()
 
-        val responseHeaders = HttpHeaders()
-        responseHeaders.add("Content-Type", "text/html")
-        responseHeaders.contentLength = responseBody.size
+        val headers = HttpHeaders()
+        headers.add("Content-Type", "text/html")
+        headers.contentLength = body.size
 
-        return HttpResponse(
-            version = HttpVersion.HTTP_1_1,
-            status = HttpStatus.OK,
-            headers = responseHeaders,
-            body = responseBody
-        )
+        return HttpResponse(status = HttpStatus.OK, headers = headers, body = body)
     }
 }

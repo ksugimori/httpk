@@ -35,8 +35,3 @@ fun InputStream.linesSequence(): Sequence<String> = sequence {
         yield(this@linesSequence.readLine())
     }
 }
-
-
-fun InputStream.httpReader() = HttpReader(this)
-
-fun OutputStream.httpWriter() = HttpWriter(this)

@@ -1,6 +1,6 @@
 package httpk.exception
 
-class InvalidHttpMessageException(
+class ResourceNotFoundException(
     override val message: String?,
     override val cause: Throwable? = null,
 ) : HttpkException(message, cause)

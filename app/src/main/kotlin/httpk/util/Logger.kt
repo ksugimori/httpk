@@ -7,8 +7,7 @@ import java.time.format.DateTimeFormatter
 /**
  * ログの時刻フォーマット。Apache 風。
  */
-private val dateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSS")
-    .withZone(ZoneId.systemDefault())
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss.SSS").withZone(ZoneId.systemDefault())
 
 /**
  * コンソールにログを出力する。
