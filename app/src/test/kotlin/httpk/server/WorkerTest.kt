@@ -1,7 +1,8 @@
-package httpk
+package httpk.server
 
 import httpk.http.semantics.*
 import httpk.handler.HttpHandler
+import httpk.server.Worker
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream

@@ -3,9 +3,7 @@
  */
 package httpk
 
-import httpk.handler.StaticResourceHandler
-import java.net.ServerSocket
-import java.nio.file.Path
+import httpk.server.Server
 import java.nio.file.Paths
 import java.time.Instant
 import java.time.ZoneId
@@ -19,26 +17,14 @@ fun log(message: String) {
     println("[${timestamp}] [${Thread.currentThread().name}] $message")
 }
 
-class App(private val documentRoot: Path) {
-
-    fun listen(port: Int) {
-        val serverSocket = ServerSocket(port)
-        log("server start. waiting on port $port")
-
-        serverSocket.use {
-            while (true) {
-                val socket = it.accept()
-                val worker = Worker(StaticResourceHandler(documentRoot))
-                socket.use(worker::execute)
-            }
-        }
-    }
-
-}
 
 fun main() {
     Runtime.getRuntime().addShutdownHook(Thread { log("server terminated.") })
 
-    val documentRoot = Paths.get("../sample").toAbsolutePath().normalize()
-    App(documentRoot).listen(8080)
+    val server = Server(
+        documentRoot = Paths.get("../sample").toAbsolutePath().normalize(),
+        port = 8080
+    )
+
+    server.listen()
 }

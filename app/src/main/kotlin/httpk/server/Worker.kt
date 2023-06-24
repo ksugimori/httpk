@@ -1,7 +1,8 @@
-package httpk
+package httpk.server
 
 import httpk.handler.DummyHttpHandler
 import httpk.handler.HttpHandler
+import httpk.log
 import httpk.util.httpReader
 import httpk.util.httpWriter
 import java.net.Socket
