@@ -4,22 +4,12 @@
 package httpk
 
 import httpk.server.Server
+import httpk.util.consoleLog
 import java.nio.file.Paths
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-
-fun log(message: String) {
-    val dateTimeFormatter = DateTimeFormatter
-        .ofPattern("uuuu-MM-dd HH:mm:ss.SSS")
-        .withZone(ZoneId.of("Asia/Tokyo"))
-    val timestamp = dateTimeFormatter.format(Instant.now())
-    println("[${timestamp}] [${Thread.currentThread().name}] $message")
-}
 
 
 fun main() {
-    Runtime.getRuntime().addShutdownHook(Thread { log("server terminated.") })
+    Runtime.getRuntime().addShutdownHook(Thread { consoleLog("server terminated.") })
 
     val server = Server(
         documentRoot = Paths.get("../sample").toAbsolutePath().normalize(),
