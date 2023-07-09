@@ -1,9 +1,6 @@
 package httpk.http.semantics
 
-import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 class HttpHeadersTest {
     @Test
@@ -54,6 +51,22 @@ class HttpHeadersTest {
 
         headers.contentType = "application/json"
         assertEquals("application/json", headers.contentType)
+    }
+
+    @Test
+    fun `isConnectionClose - 空のヘッダーの場合 false であること`() {
+        val headers = HttpHeaders()
+
+        assertFalse { headers.containsConnectionClose }
+    }
+
+    @Test
+    fun `isConnectionClose - Connection = Close の場合 true であること`() {
+        val headers = HttpHeaders {
+            add("Connection", "Close")
+        }
+
+        assertTrue { headers.containsConnectionClose }
     }
 
     @Test

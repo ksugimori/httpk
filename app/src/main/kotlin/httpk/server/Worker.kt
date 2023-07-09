@@ -22,7 +22,7 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         val httpReader = socket.getInputStream().httpReader()
         val httpWriter = socket.getOutputStream().httpWriter()
 
-        var willKeepAlive = true
+        var willKeepAlive: Boolean
         do {
             val request = try {
                 httpReader.readRequest()
@@ -33,12 +33,10 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
                 continue
             }
 
+            willKeepAlive = request.willKeepAlive
+
             val response = httpHandler.handle(request)
             httpWriter.writeResponse(response)
-
-            if (request.headers["Connection"]?.contains("Close") == true) {
-                willKeepAlive = false
-            }
 
             accessLog(request, response)
         } while (willKeepAlive)

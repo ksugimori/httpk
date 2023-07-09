@@ -40,6 +40,12 @@ class HttpHeaders(
             add("Content-Length", value.toString())
         }
 
+    /**
+     * Connection ヘッダーに Close が設定されているか？
+     */
+    val containsConnectionClose: Boolean
+        get() = nameToValues["Connection"]?.contains("Close") ?: false
+
     // --------------------------------------------------------------------------
     // method
     // --------------------------------------------------------------------------
