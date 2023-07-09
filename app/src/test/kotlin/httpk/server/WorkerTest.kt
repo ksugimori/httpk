@@ -28,6 +28,7 @@ class WorkerTest {
             append("Host: www.example.com").append("\r\n")
             append("Content-Type: application/json").append("\r\n")
             append("Content-Length: 16").append("\r\n")
+            append("Connection: Close").append("\r\n")
             append("\r\n")
             append("{\"name\": \"test\"}").append("\r\n")
         }

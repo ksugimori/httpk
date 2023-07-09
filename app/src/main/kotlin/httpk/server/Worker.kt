@@ -12,9 +12,17 @@ import httpk.util.consoleLog
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
+import java.net.SocketTimeoutException
+import java.time.Duration
+import java.time.Instant
 
 private fun InputStream.httpReader() = HttpReader(this)
 private fun OutputStream.httpWriter() = HttpWriter(this)
+
+/**
+ * KeepAlive でリクエストを待つ時間（ミリ秒）
+ */
+private const val KEEPALIVE_TIMEOUT_MILLISEONDS = 5000
 
 class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
 
@@ -22,16 +30,21 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         val httpReader = socket.getInputStream().httpReader()
         val httpWriter = socket.getOutputStream().httpWriter()
 
-        var willKeepAlive: Boolean
+        var willKeepAlive = true
         do {
+            socket.soTimeout = KEEPALIVE_TIMEOUT_MILLISEONDS
+
             val request = try {
                 httpReader.readRequest()
+            } catch (ex: SocketTimeoutException) {
+                break
             } catch (ex: InvalidHttpMessageException) {
                 httpWriter.writeResponse(HttpResponse(status = HttpStatus.BAD_REQUEST))
                 consoleLog("\"cannot parse request\" : 400 : ${ex.message}")
-                willKeepAlive = true
                 continue
             }
+
+            socket.soTimeout = 0
 
             willKeepAlive = request.willKeepAlive
 
