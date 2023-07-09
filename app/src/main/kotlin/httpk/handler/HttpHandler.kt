@@ -29,7 +29,7 @@ abstract class HttpHandler {
             }
             HttpResponse(status = HttpStatus.NOT_FOUND, headers = headers, body = body)
         } catch (ex: Exception) {
-            HttpResponse(status = HttpStatus.BAD_REQUEST)
+            HttpResponse(status = HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
