@@ -18,8 +18,6 @@ data class HttpRequest(
     val headers: HttpHeaders,
     val body: ByteArray
 ) {
-    val willKeepAlive: Boolean
-        get() = headers.containsConnectionClose.not()
 
     // ---------------------------------------------------
     // data class で自動的に作られる equals は配列の参照しか比較しない

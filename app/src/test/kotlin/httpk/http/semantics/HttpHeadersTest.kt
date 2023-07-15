@@ -54,19 +54,19 @@ class HttpHeadersTest {
     }
 
     @Test
-    fun `isConnectionClose - 空のヘッダーの場合 false であること`() {
+    fun `connection - 空のヘッダーの場合、空のリスト`() {
         val headers = HttpHeaders()
 
-        assertFalse { headers.containsConnectionClose }
+        assertEquals(emptyList(), headers.connection)
     }
 
     @Test
-    fun `isConnectionClose - Connection = Close の場合 true であること`() {
+    fun `connection - Connection = Close の場合`() {
         val headers = HttpHeaders {
             add("Connection", "Close")
         }
 
-        assertTrue { headers.containsConnectionClose }
+        assertEquals(listOf("Close"), headers.connection)
     }
 
     @Test

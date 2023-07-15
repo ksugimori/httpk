@@ -13,8 +13,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
 import java.net.SocketTimeoutException
-import java.time.Duration
-import java.time.Instant
 
 private fun InputStream.httpReader() = HttpReader(this)
 private fun OutputStream.httpWriter() = HttpWriter(this)
@@ -33,7 +31,6 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
         var willKeepAlive = true
         do {
             socket.soTimeout = KEEPALIVE_TIMEOUT_MILLISEONDS
-
             val request = try {
                 httpReader.readRequest()
             } catch (ex: SocketTimeoutException) {
@@ -45,8 +42,9 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
             }
 
             socket.soTimeout = 0
-
-            willKeepAlive = request.willKeepAlive
+            if ("Close" in request.headers.connection) {
+                willKeepAlive = false
+            }
 
             val response = httpHandler.handle(request)
             httpWriter.writeResponse(response)

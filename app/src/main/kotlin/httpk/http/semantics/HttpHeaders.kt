@@ -43,8 +43,8 @@ class HttpHeaders(
     /**
      * Connection ヘッダーに Close が設定されているか？
      */
-    val containsConnectionClose: Boolean
-        get() = nameToValues["Connection"]?.contains("Close") ?: false
+    val connection: List<String>
+        get() = nameToValues["Connection"] ?: emptyList()
 
     // --------------------------------------------------------------------------
     // method
