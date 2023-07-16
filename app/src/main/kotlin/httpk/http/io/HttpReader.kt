@@ -30,7 +30,10 @@ class HttpReader(private val inputStream: InputStream) {
         inputStream.linesSequence()
             .takeWhile { it.isNotBlank() }
             .map { parseFieldLine(it) }
-            .forEach { (name, values) -> headers.addAll(name, values.split(", ?".toRegex())) }
+            .forEach { (name, values) ->
+                val valuesList = values.split(", ?".toRegex())
+                headers.addAll(name, valuesList)
+            }
 
         val body = if (headers.contentLength > 0) {
             inputStream.readNBytes(headers.contentLength)
@@ -54,8 +57,8 @@ class HttpReader(private val inputStream: InputStream) {
      * @return (method, target, version)
      */
     private fun parseRequestLine(line: String): MatchResult.Destructured {
-        return "^(\\S+) (\\S+) (\\S+)$".toRegex().matchEntire(line)?.destructured
-            ?: throw InvalidHttpMessageException("invalid request line: $line")
+        val regex = """^(\S+) (\S+) (\S+)$""".toRegex()
+        return regex.matchEntire(line)?.destructured ?: throw InvalidHttpMessageException("invalid request line: $line")
     }
 
     /**
@@ -65,7 +68,7 @@ class HttpReader(private val inputStream: InputStream) {
      * @return (fieldName, fieldValueList)
      */
     private fun parseFieldLine(line: String): MatchResult.Destructured {
-        return "^(\\S+): (.*)$".toRegex().matchEntire(line)?.destructured
-            ?: throw InvalidHttpMessageException("invalid field line: $line")
+        val regex = """^(\S+): (.*)$""".toRegex()
+        return regex.matchEntire(line)?.destructured ?: throw InvalidHttpMessageException("invalid field line: $line")
     }
 }
