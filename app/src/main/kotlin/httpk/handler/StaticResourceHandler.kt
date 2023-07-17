@@ -1,6 +1,5 @@
 package httpk.handler
 
-import httpk.exception.ResourceNotFoundException
 import httpk.http.semantics.*
 import java.io.IOException
 import java.nio.file.Files
@@ -13,23 +12,36 @@ import kotlin.io.path.pathString
  *
  * @param documentRoot ドキュメントルート
  */
-class StaticResourceHandler(private val documentRoot: Path) : HttpHandler() {
+class StaticResourceHandler(
+    private val documentRoot: Path,
+) : HttpHandler() {
+    private val errorDirectory: Path = documentRoot.resolve("error")
+
     override fun doHandle(request: HttpRequest): HttpResponse {
         var path = Path.of(documentRoot.pathString, request.target.path)
         if (path.isDirectory()) {
             path = path.resolve("index.html")
         }
 
-        val body = try {
-            Files.readAllBytes(path)
-        } catch (ex: IOException) {
-            throw ResourceNotFoundException("${request.target} not found.", ex)
+        return if (Files.exists(path)) {
+            buildResponse(HttpStatus.OK, path)
+        } else {
+            buildResponse(HttpStatus.NOT_FOUND, errorDirectory.resolve("404.html"))
         }
 
+
+    }
+
+    /**
+     * HTMLファイルをボディに持つ HTTP レスポンスを組み立てる。
+     */
+    private fun buildResponse(status: HttpStatus, filePath: Path): HttpResponse {
+        val body = Files.readAllBytes(filePath)
+
         val headers = HttpHeaders()
-        headers.contentType = MimeType.fromPath(path)
+        headers.contentType = MimeType.fromPath(filePath)
         headers.contentLength = body.size
 
-        return HttpResponse(status = HttpStatus.OK, headers = headers, body = body)
+        return HttpResponse(status = status, headers = headers, body = body)
     }
 }
