@@ -14,10 +14,10 @@ import kotlin.io.path.pathString
  */
 class StaticResourceHandler(
     private val documentRoot: Path,
-) : HttpHandler() {
+) : HttpHandler {
     private val errorDirectory: Path = documentRoot.resolve("error")
 
-    override fun doHandle(request: HttpRequest): HttpResponse {
+    override fun handle(request: HttpRequest): HttpResponse {
         var path = Path.of(documentRoot.pathString, request.target.path)
         if (path.isDirectory()) {
             path = path.resolve("index.html")

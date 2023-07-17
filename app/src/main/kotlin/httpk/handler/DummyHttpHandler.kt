@@ -5,8 +5,8 @@ import httpk.http.semantics.HttpRequest
 import httpk.http.semantics.HttpResponse
 import httpk.http.semantics.HttpStatus
 
-class DummyHttpHandler : HttpHandler() {
-    override fun doHandle(request: HttpRequest): HttpResponse {
+class DummyHttpHandler : HttpHandler {
+    override fun handle(request: HttpRequest): HttpResponse {
         val body = """
                 <!DOCTYPE html>
                 <html>
