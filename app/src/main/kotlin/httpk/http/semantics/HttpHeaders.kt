@@ -20,13 +20,12 @@ class HttpHeaders(
     /**
      * Content-Type
      */
-    var contentType: String
+    var contentType: MimeType?
         get() {
-            return nameToValues["Content-Type"]?.first().orEmpty()
+            return nameToValues["Content-Type"]?.first()?.let { MimeType.fromText(it) }
         }
         set(value) {
-            if (value.isBlank()) return
-            add("Content-Type", value)
+            if (value != null) add("Content-Type", value.text)
         }
 
     /**
