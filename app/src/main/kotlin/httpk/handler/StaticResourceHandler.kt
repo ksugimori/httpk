@@ -1,10 +1,7 @@
 package httpk.handler
 
 import httpk.exception.ResourceNotFoundException
-import httpk.http.semantics.HttpHeaders
-import httpk.http.semantics.HttpRequest
-import httpk.http.semantics.HttpResponse
-import httpk.http.semantics.HttpStatus
+import httpk.http.semantics.*
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,9 +26,8 @@ class StaticResourceHandler(private val documentRoot: Path) : HttpHandler() {
             throw ResourceNotFoundException("${request.target} not found.", ex)
         }
 
-        // TODO MIME types
         val headers = HttpHeaders()
-        headers.contentType = "text/html"
+        headers.contentType = MimeType.fromPath(path)
         headers.contentLength = body.size
 
         return HttpResponse(status = HttpStatus.OK, headers = headers, body = body)
