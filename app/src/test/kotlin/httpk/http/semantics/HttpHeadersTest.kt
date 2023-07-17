@@ -1,9 +1,6 @@
 package httpk.http.semantics
 
-import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 class HttpHeadersTest {
     @Test
@@ -50,10 +47,10 @@ class HttpHeadersTest {
         val headers = HttpHeaders()
 
         // この時点では未設定
-        assertEquals("", headers.contentType)
+        assertNull(headers.contentType)
 
-        headers.contentType = "application/json"
-        assertEquals("application/json", headers.contentType)
+        headers.contentType = MimeType.JSON
+        assertEquals(MimeType.JSON, headers.contentType)
     }
 
     @Test
