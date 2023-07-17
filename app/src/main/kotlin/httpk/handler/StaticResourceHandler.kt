@@ -16,8 +16,8 @@ import kotlin.io.path.pathString
  *
  * @param documentRoot ドキュメントルート
  */
-class StaticResourceHandler(private val documentRoot: Path) : HttpHandler() {
-    override fun doHandle(request: HttpRequest): HttpResponse {
+class StaticResourceHandler(private val documentRoot: Path) : HttpHandler {
+    override fun handle(request: HttpRequest): HttpResponse {
         var path = Path.of(documentRoot.pathString, request.target.path)
         if (path.isDirectory()) {
             path = path.resolve("index.html")
@@ -26,7 +26,7 @@ class StaticResourceHandler(private val documentRoot: Path) : HttpHandler() {
         val body = try {
             Files.readAllBytes(path)
         } catch (ex: IOException) {
-            throw ResourceNotFoundException("${request.target} not found.", ex)
+            return HttpResponse(status = HttpStatus.NOT_FOUND)
         }
 
         // TODO MIME types
