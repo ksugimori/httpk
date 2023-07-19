@@ -2,6 +2,7 @@ package httpk.server
 
 import httpk.http.semantics.*
 import httpk.handler.HttpHandler
+import httpk.handler.Router
 import httpk.server.Worker
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -51,6 +52,8 @@ class WorkerTest {
                 )
             }
         }
+
+        val mockRouter = Router
 
         Worker(mockHttpHandler).execute(mockSocket)
 

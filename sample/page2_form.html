@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <title>HTTPK sample page 2, POST form</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <script>
+        window.addEventListener('load', event => {
+
+        const btn = document.querySelector('button');
+        const form = document.querySelector('#sum_form');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // FormData を POST すると multipart/form-data になって実装が面倒なので、URLSearchParams を使う
+            // この場合 Content-Type は application/x-www-form-urlencoded で、通常の form 送信と同じ
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            for (const e of formData.entries()) {
+                params.append(e[0], e[1]);
+            }
+
+            fetch('/api/sum', {
+                method: 'POST',
+                body: params,
+            })
+            .then(response =>  response.json())
+            .then(data => {
+                console.log(data);
+            });
+        });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <main>
+        <h1>HTTPK sample page 2, POST form</h1>
+
+        <form action="/api/sum" method="post" id="sum_form">
+            <p>
+                <input type="number" name="a"/> +
+                <input type="number" name="b"/>
+            </p>
+
+            <button type="submit">Calculate</button>
+        </form>
+    </main>
+
+    <footer>
+        <a href="./">back to Top.</a>
+    </footer>
+
+</div>
+</body>
+</html>

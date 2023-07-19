@@ -1,5 +1,6 @@
 package httpk.server
 
+import httpk.handler.Router
 import httpk.handler.StaticResourceHandler
 import httpk.util.consoleLog
 import java.net.ServerSocket
@@ -13,7 +14,7 @@ class Server(private val documentRoot: Path, private val port: Int) {
         serverSocket.use {
             while (true) {
                 val socket = it.accept()
-                val worker = Worker(StaticResourceHandler(documentRoot))
+                val worker = Worker(StaticResourceHandler(documentRoot), Router(documentRoot))
                 socket.use(worker::execute)
             }
         }
