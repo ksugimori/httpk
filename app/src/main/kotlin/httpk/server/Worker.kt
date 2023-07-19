@@ -19,7 +19,7 @@ import java.nio.file.Path
 private fun InputStream.httpReader() = HttpReader(this)
 private fun OutputStream.httpWriter() = HttpWriter(this)
 
-class Worker(private val httpHandler: HttpHandler = DummyHttpHandler(), private val router: Router) {
+class Worker(private val router: Router) {
 
     fun execute(socket: Socket) {
         val httpReader = socket.getInputStream().httpReader()
