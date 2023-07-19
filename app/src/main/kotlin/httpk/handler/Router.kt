@@ -3,8 +3,12 @@ package httpk.handler
 import java.net.URI
 import java.nio.file.Path
 
-class Router(private val documentRoot: Path) {
-    fun getHandler(uri: URI): HttpHandler {
+interface Router {
+    fun getHandler(uri: URI): HttpHandler
+}
+
+class DefaultRouter(private val documentRoot: Path) : Router {
+    override fun getHandler(uri: URI): HttpHandler {
         return when {
             uri.path.startsWith("/api") -> ApiHandler()
             else -> StaticResourceHandler(documentRoot)

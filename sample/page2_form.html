@@ -27,7 +27,7 @@
             })
             .then(response =>  response.json())
             .then(data => {
-                console.log(data);
+                document.querySelector('#sum').textContent = data.sum;
             });
         });
         });
@@ -40,8 +40,9 @@
 
         <form action="/api/sum" method="post" id="sum_form">
             <p>
-                <input type="number" name="a"/> +
-                <input type="number" name="b"/>
+                <input type="number" name="a" required value="1"/> +
+                <input type="number" name="b" required value="2"/> =
+                <span id="sum"></span>
             </p>
 
             <button type="submit">Calculate</button>

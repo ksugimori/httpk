@@ -1,14 +1,14 @@
 package httpk.server
 
-import httpk.http.semantics.*
 import httpk.handler.HttpHandler
 import httpk.handler.Router
-import httpk.server.Worker
+import httpk.http.semantics.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
+import java.net.URI
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -53,9 +53,11 @@ class WorkerTest {
             }
         }
 
-        val mockRouter = Router
+        val mockRouter: Router = object : Router {
+            override fun getHandler(uri: URI): HttpHandler = mockHttpHandler
+        }
 
-        Worker(mockHttpHandler).execute(mockSocket)
+        Worker(mockRouter).execute(mockSocket)
 
         assertEquals(
             expected = buildString {
