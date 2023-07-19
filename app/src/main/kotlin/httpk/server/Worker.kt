@@ -4,6 +4,7 @@ import httpk.exception.InvalidHttpMessageException
 import httpk.exception.ResourceNotFoundException
 import httpk.handler.DummyHttpHandler
 import httpk.handler.HttpHandler
+import httpk.handler.Router
 import httpk.http.io.HttpReader
 import httpk.http.io.HttpWriter
 import httpk.http.semantics.HttpHeaders
@@ -13,11 +14,12 @@ import httpk.util.consoleLog
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.Socket
+import java.nio.file.Path
 
 private fun InputStream.httpReader() = HttpReader(this)
 private fun OutputStream.httpWriter() = HttpWriter(this)
 
-class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
+class Worker(private val httpHandler: HttpHandler = DummyHttpHandler(), private val router: Router) {
 
     fun execute(socket: Socket) {
         val httpReader = socket.getInputStream().httpReader()
@@ -31,7 +33,9 @@ class Worker(private val httpHandler: HttpHandler = DummyHttpHandler()) {
             return
         }
 
-        val response = httpHandler.handle(request)
+        val handler: HttpHandler = router.getHandler(request.target)
+
+        val response = handler.handle(request)
         httpWriter.writeResponse(response)
 
         consoleLog("\"${request.method} ${request.target} ${request.version}\" : ${response.status.code}")
